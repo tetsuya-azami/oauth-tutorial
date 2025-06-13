@@ -1,0 +1,13 @@
+@startuml
+actor User
+participant "Client App" as Client
+participant "Auth Server" as Server
+
+User -> Client: 認可リクエスト
+Client -> Server: /authorize (認可リクエスト)
+Server -> User: ログイン画面
+User -> Server: ログイン情報入力
+Server -> Client: 認可コード付与リダイレクト
+Client -> Server: /token (認可コード送信)
+Server -> Client: アクセストークン発行
+@enduml
