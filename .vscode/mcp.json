@@ -1,0 +1,15 @@
+{
+	"servers": {
+		"github": {
+			"command": "nerdctl",
+			"args": [
+				"run",
+				"-i",
+				"--rm",
+				"--env-file",
+				".env",
+				"ghcr.io/github/github-mcp-server"
+			]
+		}
+	}
+}
