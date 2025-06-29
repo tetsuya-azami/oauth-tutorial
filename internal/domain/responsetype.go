@@ -7,7 +7,8 @@ import (
 type ResponseType int
 
 const (
-	responseTypeCode ResponseType = iota
+	notSupported ResponseType = iota
+	responseTypeCode
 	// responseTypeToken
 	// responseTypeIDToken
 )
@@ -19,10 +20,11 @@ var codeValueMap = map[string]ResponseType{
 	// "id_token": responseTypeIDToken,
 }
 
-func IsSupportedResponseType(responseType string) error {
-	_, ok := codeValueMap[responseType]
+func GetResponseType(responseType string) (ResponseType, error) {
+	r, ok := codeValueMap[responseType]
 	if !ok {
-		return errors.New("only supports response_type 'code'")
+		return notSupported, errors.New("unsupported response_type: " + responseType)
 	}
-	return nil
+
+	return r, nil
 }

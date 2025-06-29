@@ -46,7 +46,9 @@ func (s *Server) authorizeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) validateAuthorizeRequest(queries url.Values) error {
-	if err := domain.IsSupportedResponseType(queries.Get("response_type")); err != nil {
+	// 認可フローによって処理が異なるケースを想定。現状、認可コードフローのみサポートのため、取得した値を使用してはいない
+	_, err := domain.GetResponseType(queries.Get("response_type"))
+	if err != nil {
 		s.logger.Info("Invalid authorize request parameters", "error", err)
 		return err
 	}
