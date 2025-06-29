@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/logger"
 )
 
@@ -45,9 +46,9 @@ func (s *Server) authorizeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) validateAuthorizeRequest(queries url.Values) error {
-	if queries.Get("response_type") != "code" {
-		s.logger.Info("response_type is not 'code'")
-		return errors.New("only supports response_type 'code'")
+	if err := domain.IsSupportedResponseType(queries.Get("response_type")); err != nil {
+		s.logger.Info("Invalid authorize request parameters", "error", err)
+		return err
 	}
 
 	if queries.Get("client_id") == "" {

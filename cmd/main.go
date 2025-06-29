@@ -1,7 +1,8 @@
 package main
 
-import "oauth-tutorial/internal/handler"
+import "oauth-tutorial/internal/server"
 
 func main() {
-	handler.StartServer()
+	s := server.NewServer()
+	s.Start()
 }
