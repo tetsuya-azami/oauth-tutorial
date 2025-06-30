@@ -24,7 +24,7 @@ func TestNewAuthorizationCode(t *testing.T) {
 			scope:       "openid profile",
 			redirectURI: "https://example.com/cb",
 			now:         time.Date(2000, 1, 2, 3, 4, 5, 0, time.UTC).UTC(),
-			expiresAt:   time.Date(2000, 1, 3, 3, 4, 5, 0, time.UTC).Local().Unix(),
+			expiresAt:   time.Date(2000, 1, 2, 3, 14, 5, 0, time.UTC).Local().Unix(),
 		},
 	}
 

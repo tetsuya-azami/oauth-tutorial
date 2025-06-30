@@ -12,7 +12,7 @@ type AuthorizationCode struct {
 }
 
 func NewAuthorizationCode(value, userID, clientID, scope, redirectURI string, now time.Time) *AuthorizationCode {
-	expiresAt := now.Local().Add(24 * time.Hour).Unix() // デフォルトロケールの時間で1日後に設定
+	expiresAt := now.Local().Add(10 * time.Minute).Unix() // デフォルトロケールの時間で10分後に設定
 	return &AuthorizationCode{
 		value:       value,
 		userID:      userID,
