@@ -10,16 +10,6 @@ func (u *User) UserID() string   { return u.userID }
 func (u *User) LoginID() string  { return u.loginID }
 func (u *User) Password() string { return u.password }
 
-type Client struct {
-	clientID    string
-	secret      string
-	redirectURI string
-}
-
-func (c *Client) ClientID() string    { return c.clientID }
-func (c *Client) Secret() string      { return c.secret }
-func (c *Client) RedirectURI() string { return c.redirectURI }
-
 type Token struct {
 	accessToken  string
 	refreshToken string
