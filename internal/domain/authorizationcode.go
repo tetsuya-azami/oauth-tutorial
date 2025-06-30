@@ -6,18 +6,18 @@ type AuthorizationCode struct {
 	value       string
 	userID      string
 	clientID    string
-	scope       string
+	scopes      []string
 	redirectURI string
 	expiresAt   int64
 }
 
-func NewAuthorizationCode(value, userID, clientID, scope, redirectURI string, now time.Time) *AuthorizationCode {
+func NewAuthorizationCode(value string, userID string, clientID string, scopes []string, redirectURI string, now time.Time) *AuthorizationCode {
 	expiresAt := now.Local().Add(10 * time.Minute).Unix() // デフォルトロケールの時間で10分後に設定
 	return &AuthorizationCode{
 		value:       value,
 		userID:      userID,
 		clientID:    clientID,
-		scope:       scope,
+		scopes:      scopes,
 		redirectURI: redirectURI,
 		expiresAt:   expiresAt,
 	}
@@ -28,4 +28,4 @@ func (a *AuthorizationCode) UserID() string      { return a.userID }
 func (a *AuthorizationCode) ClientID() string    { return a.clientID }
 func (a *AuthorizationCode) RedirectURI() string { return a.redirectURI }
 func (a *AuthorizationCode) ExpiresAt() int64    { return a.expiresAt }
-func (a *AuthorizationCode) Scope() string       { return a.scope }
+func (a *AuthorizationCode) Scopes() []string    { return a.scopes }
