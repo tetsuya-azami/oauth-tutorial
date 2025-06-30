@@ -20,20 +20,6 @@ func (c *Client) ClientID() string    { return c.clientID }
 func (c *Client) Secret() string      { return c.secret }
 func (c *Client) RedirectURI() string { return c.redirectURI }
 
-type AuthCode struct {
-	code      string
-	userID    string
-	clientID  string
-	expiresAt int64
-	state     string
-}
-
-func (a *AuthCode) Code() string     { return a.code }
-func (a *AuthCode) UserID() string   { return a.userID }
-func (a *AuthCode) ClientID() string { return a.clientID }
-func (a *AuthCode) ExpiresAt() int64 { return a.expiresAt }
-func (a *AuthCode) State() string    { return a.state }
-
 type Token struct {
 	accessToken  string
 	refreshToken string
