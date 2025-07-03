@@ -11,6 +11,6 @@ type AuthCodeRepository interface {
 
 // TokenRepository defines methods for storing and retrieving tokens
 type TokenRepository interface {
-	Save(token *domain.Token) error
-	FindByAccessToken(token string) (*domain.Token, error)
+	Save(token *domain.AccessToken) error
+	FindByAccessToken(token string) (*domain.AccessToken, error)
 }

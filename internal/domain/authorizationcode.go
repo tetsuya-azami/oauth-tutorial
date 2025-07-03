@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"oauth-tutorial/internal/crypt"
+	"time"
+)
 
 type AuthorizationCode struct {
 	value       string
@@ -11,10 +14,11 @@ type AuthorizationCode struct {
 	expiresAt   int64
 }
 
-func NewAuthorizationCode(value string, userID string, clientID string, scopes []string, redirectURI string, now time.Time) *AuthorizationCode {
-	expiresAt := now.Local().Add(10 * time.Minute).Unix() // デフォルトロケールの時間で10分後に設定
+func NewAuthorizationCode(randomGenerator crypt.RandomGenerator, userID string, clientID string, scopes []string, redirectURI string, now time.Time) *AuthorizationCode {
+	expiresAt := now.Local().Add(10 * time.Minute).Unix()
+	v := randomGenerator.GenerateURLSafeRandomString(32)
 	return &AuthorizationCode{
-		value:       value,
+		value:       v,
 		userID:      userID,
 		clientID:    clientID,
 		scopes:      scopes,

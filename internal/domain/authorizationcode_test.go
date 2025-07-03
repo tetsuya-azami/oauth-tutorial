@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"oauth-tutorial/internal/crypt"
 	"testing"
 	"time"
 )
@@ -18,7 +19,6 @@ func TestNewAuthorizationCode(t *testing.T) {
 	}{
 		{
 			name:        "basic",
-			value:       "test-value",
 			userID:      "user-1",
 			clientID:    "client-1",
 			scopes:      []string{"openid profile"},
@@ -30,10 +30,10 @@ func TestNewAuthorizationCode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ac := NewAuthorizationCode(tt.value, tt.userID, tt.clientID, tt.scopes, tt.redirectURI, tt.now)
+			ac := NewAuthorizationCode(crypt.RandomGenerator{}, tt.userID, tt.clientID, tt.scopes, tt.redirectURI, tt.now)
 
-			if ac.Value() != tt.value {
-				t.Errorf("Value() = %v, want %v", ac.Value(), tt.value)
+			if ac.value == "" {
+				t.Errorf("Value() should not be empty")
 			}
 			if ac.UserID() != tt.userID {
 				t.Errorf("UserID() = %v, want %v", ac.UserID(), tt.userID)
