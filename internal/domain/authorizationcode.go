@@ -14,8 +14,12 @@ type AuthorizationCode struct {
 	expiresAt   int64
 }
 
+const (
+	AUTHORIZATION_CODE_DURATION = 10 * time.Minute
+)
+
 func NewAuthorizationCode(randomGenerator crypt.RandomGenerator, userID string, clientID string, scopes []string, redirectURI string, now time.Time) *AuthorizationCode {
-	expiresAt := now.Local().Add(10 * time.Minute).Unix()
+	expiresAt := now.Local().Add(AUTHORIZATION_CODE_DURATION).Unix()
 	v := randomGenerator.GenerateURLSafeRandomString(32)
 	return &AuthorizationCode{
 		value:       v,
