@@ -8,6 +8,15 @@ type Client struct {
 	redirectURIs []string
 }
 
+func ReconstructClient(clientID, clientName, secret string, redirectURIs []string) *Client {
+	return &Client{
+		clientID:     clientID,
+		clientName:   clientName,
+		secret:       secret,
+		redirectURIs: redirectURIs,
+	}
+}
+
 func (c *Client) ClientID() string      { return c.clientID }
 func (c *Client) ClientName() string    { return c.clientName }
 func (c *Client) Secret() string        { return c.secret }

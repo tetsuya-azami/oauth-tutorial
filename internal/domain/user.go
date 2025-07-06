@@ -9,6 +9,14 @@ type User struct {
 	password string
 }
 
+func ReconstructUser(userID, loginID, password string) *User {
+	return &User{
+		userID:   userID,
+		loginID:  loginID,
+		password: password,
+	}
+}
+
 func (u *User) UserID() string   { return u.userID }
 func (u *User) LoginID() string  { return u.loginID }
 func (u *User) Password() string { return u.password }
