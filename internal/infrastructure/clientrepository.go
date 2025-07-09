@@ -24,7 +24,7 @@ var clients = map[ClientIdAndSecretPair]*domain.Client{
 
 var ErrClientNotFound = errors.New("client not found")
 
-func (*ClientRepository) NewClientRepository() *ClientRepository {
+func NewClientRepository() *ClientRepository {
 	return &ClientRepository{clients: clients}
 }
 
