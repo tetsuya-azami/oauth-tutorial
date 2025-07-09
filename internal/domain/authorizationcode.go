@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// TODO: PKCEあとで実装する
 type AuthorizationCode struct {
 	value       string
 	userID      string
