@@ -19,9 +19,3 @@ func (*RandomGenerator) GenerateURLSafeRandomString(n int) string {
 	}
 	return base64.RawURLEncoding.EncodeToString(b)
 }
-
-func (RandomGenerator) Hoge() string {
-	// This method is intentionally left empty.
-	// It is used to demonstrate that the RandomGenerator struct can have methods.
-	return "Hoge"
-}
