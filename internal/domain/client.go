@@ -17,6 +17,16 @@ func ReconstructClient(clientID, clientName, secret string, redirectURIs []strin
 	}
 }
 
+func (c *Client) ContainsRedirectURI(redirectURI string) bool {
+	for _, uri := range c.redirectURIs {
+		if uri == redirectURI {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (c *Client) ClientID() string      { return c.clientID }
 func (c *Client) ClientName() string    { return c.clientName }
 func (c *Client) Secret() string        { return c.secret }

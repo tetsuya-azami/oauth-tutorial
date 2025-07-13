@@ -5,31 +5,21 @@ import (
 	"oauth-tutorial/internal/domain"
 )
 
-type IClientRepository interface {
-	SelectByClientIDAndSecret(clientID, clientSecret string) (*domain.Client, error)
-}
-
 type ClientRepository struct {
-	clients map[ClientIdAndSecretPair]*domain.Client
-}
-
-type ClientIdAndSecretPair struct {
-	ClientID     string
-	ClientSecret string
-}
-
-var clients = map[ClientIdAndSecretPair]*domain.Client{
-	{ClientID: "iouobrnea", ClientSecret: "password"}: domain.ReconstructClient("iouobrnea", "client-1", "password", []string{"https://client.example.com/callback"}),
+	clients map[string]*domain.Client
 }
 
 var ErrClientNotFound = errors.New("client not found")
 
 func NewClientRepository() *ClientRepository {
+	clients := map[string]*domain.Client{
+		"iouobrnea": domain.ReconstructClient("iouobrnea", "client-1", "password", []string{"https://client.example.com/callback"}),
+	}
 	return &ClientRepository{clients: clients}
 }
 
-func (r *ClientRepository) SelectByClientIDAndSecret(clientID, clientSecret string) (*domain.Client, error) {
-	client, ok := r.clients[ClientIdAndSecretPair{ClientID: clientID, ClientSecret: clientSecret}]
+func (r *ClientRepository) SelectByClientIDAndSecret(clientID string) (*domain.Client, error) {
+	client, ok := r.clients[clientID]
 	if !ok {
 		return nil, ErrClientNotFound
 	}

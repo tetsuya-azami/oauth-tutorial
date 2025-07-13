@@ -1,12 +1,19 @@
 package domain
 
 import (
-	"oauth-tutorial/internal/crypt"
 	"testing"
 	"time"
 )
 
-func TestNewAuthorizationCode(t *testing.T) {
+const TEST_RANDOM_STRING = "test-random-string"
+
+type TestRandomGenerator struct{}
+
+func (r *TestRandomGenerator) GenerateURLSafeRandomString(n int) string {
+	return TEST_RANDOM_STRING
+}
+
+func Test_AuthorizationCode構築(t *testing.T) {
 	tests := []struct {
 		name        string
 		value       string
@@ -18,7 +25,7 @@ func TestNewAuthorizationCode(t *testing.T) {
 		expiresAt   int64
 	}{
 		{
-			name:        "basic",
+			name:        "正常系",
 			userID:      "user-1",
 			clientID:    "client-1",
 			scopes:      []string{"openid profile"},
@@ -30,10 +37,10 @@ func TestNewAuthorizationCode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ac := NewAuthorizationCode(crypt.RandomGenerator{}, tt.userID, tt.clientID, tt.scopes, tt.redirectURI, tt.now)
+			ac := NewAuthorizationCode(&TestRandomGenerator{}, tt.userID, tt.clientID, tt.scopes, tt.redirectURI, tt.now)
 
-			if ac.value == "" {
-				t.Errorf("Value() should not be empty")
+			if ac.Value() != TEST_RANDOM_STRING {
+				t.Errorf("Value() = %v, want not %v", ac.Value(), TEST_RANDOM_STRING)
 			}
 			if ac.UserID() != tt.userID {
 				t.Errorf("UserID() = %v, want %v", ac.UserID(), tt.userID)

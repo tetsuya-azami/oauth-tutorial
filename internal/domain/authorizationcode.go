@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"oauth-tutorial/internal/crypt"
 	"time"
 )
 
@@ -19,7 +18,15 @@ const (
 	AUTHORIZATION_CODE_DURATION = 10 * time.Minute
 )
 
-func NewAuthorizationCode(randomGenerator crypt.RandomGenerator, userID string, clientID string, scopes []string, redirectURI string, now time.Time) *AuthorizationCode {
+var (
+	SUPPORTED_SCOPES = []string{"read", "write"}
+)
+
+type RandomGenerator interface {
+	GenerateURLSafeRandomString(n int) string
+}
+
+func NewAuthorizationCode(randomGenerator RandomGenerator, userID string, clientID string, scopes []string, redirectURI string, now time.Time) *AuthorizationCode {
 	expiresAt := now.Local().Add(AUTHORIZATION_CODE_DURATION).Unix()
 	v := randomGenerator.GenerateURLSafeRandomString(32)
 	return &AuthorizationCode{
@@ -30,6 +37,22 @@ func NewAuthorizationCode(randomGenerator crypt.RandomGenerator, userID string, 
 		redirectURI: redirectURI,
 		expiresAt:   expiresAt,
 	}
+}
+
+func IsValidScopes(scopes []string) bool {
+	for _, scope := range scopes {
+		valid := false
+		for _, supportedScope := range SUPPORTED_SCOPES {
+			if scope == supportedScope {
+				valid = true
+				break
+			}
+		}
+		if !valid {
+			return false
+		}
+	}
+	return true
 }
 
 func (a *AuthorizationCode) Value() string       { return a.value }
