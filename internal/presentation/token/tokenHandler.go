@@ -1,15 +1,15 @@
 package tokenhandler
 
 import (
-	"log/slog"
 	"net/http"
+	"oauth-tutorial/internal/logger"
 )
 
 type TokenHandler struct {
-	logger *slog.Logger
+	logger logger.MyLogger
 }
 
-func NewTokenHandler(logger *slog.Logger) *TokenHandler {
+func NewTokenHandler(logger logger.MyLogger) *TokenHandler {
 	return &TokenHandler{logger: logger}
 }
 

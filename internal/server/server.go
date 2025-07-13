@@ -2,7 +2,6 @@ package server
 
 import (
 	"log"
-	"log/slog"
 	"net/http"
 	"oauth-tutorial/internal/infrastructure"
 	"oauth-tutorial/internal/logger"
@@ -12,7 +11,7 @@ import (
 )
 
 type Server struct {
-	logger *slog.Logger
+	logger logger.MyLogger
 }
 
 func NewServer() *Server {
