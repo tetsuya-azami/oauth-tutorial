@@ -20,6 +20,7 @@ func TestNewAuthCodeRepository(t *testing.T) {
 
 	if repo == nil {
 		t.Error("NewAuthCodeRepository() should not return nil")
+		return
 	}
 
 	if repo.authCodeStore == nil {
