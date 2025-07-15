@@ -1,13 +1,9 @@
-package crypt
+package crypto
 
 import (
 	"crypto/rand"
 	"encoding/base64"
 )
-
-type Generator interface {
-	GenerateURLSafeRandomString(n int) string
-}
 
 type RandomGenerator struct{}
 
