@@ -185,7 +185,7 @@ func TestAuthCodeRepository_ConcurrentAccess(t *testing.T) {
 	numGoroutines := 100
 
 	// 同時に複数の認可コードを保存
-	for i := 0; i < numGoroutines; i++ {
+	for i := range numGoroutines {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
