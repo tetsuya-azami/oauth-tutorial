@@ -29,6 +29,8 @@ type RandomGenerator interface {
 func NewAuthorizationCode(randomGenerator RandomGenerator, userID string, clientID string, scopes []string, redirectURI string, now time.Time) *AuthorizationCode {
 	expiresAt := now.Local().Add(AUTHORIZATION_CODE_DURATION).Unix()
 	v := randomGenerator.GenerateURLSafeRandomString(32)
+	// TODO: 衝突の危険性を考慮して、必要に応じて再生成する
+	// TODO: 期限切れの認可コードを削除するバッチ作成
 	return &AuthorizationCode{
 		value:       v,
 		userID:      userID,
