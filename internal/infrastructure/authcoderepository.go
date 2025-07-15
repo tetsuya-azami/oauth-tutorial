@@ -6,11 +6,9 @@ import (
 	"sync"
 )
 
-type IAuthCodeRepository interface {
-	Save(code *domain.AuthorizationCode) error
-	FindByCode(code string) (*domain.AuthorizationCode, error)
-	Delete(code string) error
-}
+var (
+	ErrAuthorizationCodeNotFound = errors.New("authorization code not found")
+)
 
 type AuthCodeRepository struct {
 	authCodeStore map[string]*domain.AuthorizationCode
@@ -23,11 +21,10 @@ func NewAuthCodeRepository() *AuthCodeRepository {
 	}
 }
 
-func (r *AuthCodeRepository) Save(code *domain.AuthorizationCode) error {
+func (r *AuthCodeRepository) Save(code *domain.AuthorizationCode) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.authCodeStore[code.Value()] = code
-	return nil
 }
 
 func (r *AuthCodeRepository) FindByCode(code string) (*domain.AuthorizationCode, error) {
@@ -35,7 +32,7 @@ func (r *AuthCodeRepository) FindByCode(code string) (*domain.AuthorizationCode,
 	defer r.mu.RUnlock()
 	v, ok := r.authCodeStore[code]
 	if !ok {
-		return nil, errors.New("not found")
+		return nil, ErrAuthorizationCodeNotFound
 	}
 	return v, nil
 }
