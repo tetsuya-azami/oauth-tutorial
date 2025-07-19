@@ -12,11 +12,20 @@ func NewAuthParamSession() *AuthParamSession {
 }
 
 var (
-	sessionStore       = map[string]domain.AuthorizationCodeFlowParam{}
-	ErrSessionNotFound = errors.New("authParam not found")
+	sessionStore        = map[string]domain.AuthorizationCodeFlowParam{}
+	ErrInvalidParameter = errors.New("sessionID is required")
+	ErrSessionNotFound  = errors.New("authParam not found")
 )
 
+// TODO: 型で制約をかける
 func (s *AuthParamSession) Save(sessionID string, authParam *domain.AuthorizationCodeFlowParam) error {
+	if sessionID == "" {
+		return ErrInvalidParameter
+	}
+	if authParam == nil {
+		return ErrInvalidParameter
+	}
+
 	sessionStore[sessionID] = *authParam
 	return nil
 }
@@ -29,7 +38,6 @@ func (s *AuthParamSession) Get(sessionID string) (*domain.AuthorizationCodeFlowP
 	return &authParam, nil
 }
 
-func (s *AuthParamSession) Clear(sessionID string) error {
+func (s *AuthParamSession) Clear(sessionID string) {
 	delete(sessionStore, sessionID)
-	return nil
 }
