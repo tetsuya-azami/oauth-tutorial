@@ -10,6 +10,4 @@ type IClientRepository interface {
 
 type IAuthParamSession interface {
 	Save(sessionID string, authParam *domain.AuthorizationCodeFlowParam) error
-	Get(sessionID string) (*domain.AuthorizationCodeFlowParam, error)
-	Clear(sessionID string)
 }

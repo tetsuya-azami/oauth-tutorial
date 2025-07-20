@@ -26,6 +26,7 @@ var (
 	ErrClientNotFound     = errors.New("client not found")
 	ErrUnExpected         = errors.New("unexpected error occurred")
 	ErrInvalidRedirectURI = errors.New("invalid redirect URI")
+	ErrServer             = errors.New("server error occurred")
 )
 
 func (c *AuthorizationCodeFlow) Execute(param *domain.AuthorizationCodeFlowParam) error {
@@ -34,8 +35,10 @@ func (c *AuthorizationCodeFlow) Execute(param *domain.AuthorizationCodeFlowParam
 	if err != nil {
 		switch {
 		case errors.Is(err, infrastructure.ErrClientNotFound):
+			c.logger.Info("client not found", "clientID", param.ClientID())
 			return ErrClientNotFound
 		default:
+			c.logger.Error("unexpected error occured", "error", err)
 			return ErrUnExpected
 		}
 	}
@@ -46,7 +49,17 @@ func (c *AuthorizationCodeFlow) Execute(param *domain.AuthorizationCodeFlowParam
 	}
 
 	sessionID := presentation.GenerateSessionID()
-	c.sessionStore.Save(sessionID, param)
+	err = c.sessionStore.Save(sessionID, param)
+	if err != nil {
+		switch {
+		case errors.Is(err, infrastructure.ErrInvalidParameter):
+			c.logger.Info("invalid session parameter", "error", err)
+			return ErrServer
+		default:
+			c.logger.Error("unexpected error occured", "error", err)
+			return ErrUnExpected
+		}
+	}
 
 	return nil
 }
