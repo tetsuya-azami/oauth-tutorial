@@ -45,6 +45,11 @@ func (h *AuthorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			h.logger.Info("Invalid redirect URI", "redirectURI", redirectURI)
 			presentation.WriteJSONResponse(w, http.StatusBadRequest, presentation.ErrorResponse{Message: err.Error()})
 		case errors.Is(err, usecase.ErrUnExpected):
+			h.logger.Error("Unexpected error occurred", "error", err)
+			presentation.WriteJSONResponse(w, http.StatusInternalServerError, presentation.ErrorResponse{Message: err.Error()})
+		case errors.Is(err, usecase.ErrServer):
+			h.logger.Error("Server error occurred", "error", err)
+			presentation.WriteJSONResponse(w, http.StatusInternalServerError, presentation.ErrorResponse{Message: err.Error()})
 		default:
 			h.logger.Error("Unexpected error occurred while getting client", "error", err)
 			presentation.WriteJSONResponse(w, http.StatusInternalServerError, presentation.ErrorResponse{Message: err.Error()})
@@ -54,5 +59,6 @@ func (h *AuthorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	h.logger.Info("Client authorized successfully")
 
-	// 画面を返す
+	// 本来は認証画面を表示するが、ここではOKのレスポンスを返すだけとする
+	presentation.WriteJSONResponse(w, http.StatusOK, presentation.SuccessResponse{Message: "OK"})
 }
