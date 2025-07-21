@@ -7,6 +7,7 @@ import (
 	"oauth-tutorial/internal/infrastructure"
 	"oauth-tutorial/internal/logger"
 	authorize "oauth-tutorial/internal/presentation/authorization"
+	"oauth-tutorial/internal/session"
 	usecase "oauth-tutorial/internal/usecase/authorization"
 	"testing"
 	"time"
@@ -16,8 +17,9 @@ func Test_認可リクエスト統合テスト(t *testing.T) {
 	// given
 	logger := logger.NewMyLogger()
 	cr := infrastructure.NewClientRepository()
+	sig := session.NewSessionIDGenerator()
 	aps := infrastructure.NewAuthParamSession()
-	acf := usecase.NewAuthorizationCodeFlow(logger, cr, aps)
+	acf := usecase.NewAuthorizationCodeFlow(logger, cr, sig, aps)
 
 	mux := http.NewServeMux()
 	mux.Handle("/authorize", authorize.NewAuthorizeHandler(logger, acf))

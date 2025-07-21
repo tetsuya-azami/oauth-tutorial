@@ -4,6 +4,7 @@ import (
 	"errors"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
+	"oauth-tutorial/internal/session"
 	"oauth-tutorial/internal/test"
 	"testing"
 )
@@ -27,6 +28,20 @@ func (m *MockClientRepository) SelectByClientIDAndSecret(clientID string) (*doma
 	return m.client, nil
 }
 
+type MockSessionIdGenerator struct {
+	id session.SessionID
+}
+
+func NewMockSessionIdGenerator(id session.SessionID) *MockSessionIdGenerator {
+	return &MockSessionIdGenerator{
+		id: id,
+	}
+}
+
+func (m *MockSessionIdGenerator) Generate() session.SessionID {
+	return m.id
+}
+
 type MockAuthParamSession struct {
 	err error
 }
@@ -37,7 +52,7 @@ func NewMockAuthParamSession(err error) *MockAuthParamSession {
 	}
 }
 
-func (m *MockAuthParamSession) Save(sessionID string, authParam *domain.AuthorizationCodeFlowParam) error {
+func (m *MockAuthParamSession) Save(sessionID session.SessionID, authParam *domain.AuthorizationCodeFlowParam) error {
 	if m.err != nil {
 		return m.err
 	}
@@ -88,9 +103,10 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			name:  "正常ケース - 認可フロー成功",
 			param: validParam,
 			setupFunc: func() *AuthorizationCodeFlow {
-				clientRepo := NewMockClientRepository(validClient, nil)
-				sessionStore := NewMockAuthParamSession(nil)
-				return NewAuthorizationCodeFlow(logger, clientRepo, sessionStore)
+				cr := NewMockClientRepository(validClient, nil)
+				aps := NewMockAuthParamSession(nil)
+				sig := NewMockSessionIdGenerator("test-session-id")
+				return NewAuthorizationCodeFlow(logger, cr, sig, aps)
 			},
 			wantErr:     false,
 			expectedErr: nil,
@@ -101,7 +117,8 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			setupFunc: func() *AuthorizationCodeFlow {
 				clientRepo := NewMockClientRepository(nil, infrastructure.ErrClientNotFound)
 				sessionStore := NewMockAuthParamSession(nil)
-				return NewAuthorizationCodeFlow(logger, clientRepo, sessionStore)
+				sig := NewMockSessionIdGenerator("test-session-id")
+				return NewAuthorizationCodeFlow(logger, clientRepo, sig, sessionStore)
 			},
 			wantErr:     true,
 			expectedErr: ErrClientNotFound,
@@ -112,7 +129,8 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			setupFunc: func() *AuthorizationCodeFlow {
 				clientRepo := NewMockClientRepository(nil, errors.New("database error"))
 				sessionStore := NewMockAuthParamSession(nil)
-				return NewAuthorizationCodeFlow(logger, clientRepo, sessionStore)
+				sig := NewMockSessionIdGenerator("test-session-id")
+				return NewAuthorizationCodeFlow(logger, clientRepo, sig, sessionStore)
 			},
 			wantErr:     true,
 			expectedErr: ErrUnExpected,
@@ -123,7 +141,8 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			setupFunc: func() *AuthorizationCodeFlow {
 				clientRepo := NewMockClientRepository(validClient, nil)
 				sessionStore := NewMockAuthParamSession(nil)
-				return NewAuthorizationCodeFlow(logger, clientRepo, sessionStore)
+				sig := NewMockSessionIdGenerator("test-session-id")
+				return NewAuthorizationCodeFlow(logger, clientRepo, sig, sessionStore)
 			},
 			wantErr:     true,
 			expectedErr: ErrInvalidRedirectURI,
@@ -134,7 +153,8 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			setupFunc: func() *AuthorizationCodeFlow {
 				clientRepo := NewMockClientRepository(validClient, nil)
 				sessionStore := NewMockAuthParamSession(infrastructure.ErrInvalidParameter)
-				return NewAuthorizationCodeFlow(logger, clientRepo, sessionStore)
+				sig := NewMockSessionIdGenerator("test-session-id")
+				return NewAuthorizationCodeFlow(logger, clientRepo, sig, sessionStore)
 			},
 			wantErr:     true,
 			expectedErr: ErrServer,
@@ -145,7 +165,8 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			setupFunc: func() *AuthorizationCodeFlow {
 				clientRepo := NewMockClientRepository(validClient, nil)
 				sessionStore := NewMockAuthParamSession(errors.New("unexpected error"))
-				return NewAuthorizationCodeFlow(logger, clientRepo, sessionStore)
+				sig := NewMockSessionIdGenerator("test-session-id")
+				return NewAuthorizationCodeFlow(logger, clientRepo, sig, sessionStore)
 			},
 			wantErr:     true,
 			expectedErr: ErrUnExpected,

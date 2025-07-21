@@ -5,20 +5,21 @@ import (
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
 	"oauth-tutorial/internal/logger"
-	"oauth-tutorial/internal/presentation"
 )
 
 type AuthorizationCodeFlow struct {
-	logger           logger.MyLogger
-	clientRepository IClientRepository
-	sessionStore     IAuthParamSession
+	logger             logger.MyLogger
+	clientRepository   IClientRepository
+	sessionStore       IAuthParamSession
+	sessionIDGenerator ISessionIDGenerator
 }
 
-func NewAuthorizationCodeFlow(logger logger.MyLogger, cr IClientRepository, sessionStore IAuthParamSession) *AuthorizationCodeFlow {
+func NewAuthorizationCodeFlow(logger logger.MyLogger, cr IClientRepository, sessionIDGenerator ISessionIDGenerator, sessionStore IAuthParamSession) *AuthorizationCodeFlow {
 	return &AuthorizationCodeFlow{
-		logger:           logger,
-		clientRepository: cr,
-		sessionStore:     sessionStore,
+		logger:             logger,
+		clientRepository:   cr,
+		sessionIDGenerator: sessionIDGenerator,
+		sessionStore:       sessionStore,
 	}
 }
 
@@ -48,7 +49,8 @@ func (c *AuthorizationCodeFlow) Execute(param *domain.AuthorizationCodeFlowParam
 		return ErrInvalidRedirectURI
 	}
 
-	sessionID := presentation.GenerateSessionID()
+	sessionID := c.sessionIDGenerator.Generate()
+
 	err = c.sessionStore.Save(sessionID, param)
 	if err != nil {
 		switch {

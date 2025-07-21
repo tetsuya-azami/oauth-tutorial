@@ -7,6 +7,7 @@ import (
 	"oauth-tutorial/internal/logger"
 	authorize "oauth-tutorial/internal/presentation/authorization"
 	tokenhandler "oauth-tutorial/internal/presentation/token"
+	"oauth-tutorial/internal/session"
 	usecase "oauth-tutorial/internal/usecase/authorization"
 )
 
@@ -25,8 +26,9 @@ func (s *Server) Start() {
 
 	// Initialize repositories and use cases
 	cr := infrastructure.NewClientRepository()
+	sig := session.NewSessionIDGenerator()
 	aps := infrastructure.NewAuthParamSession()
-	acf := usecase.NewAuthorizationCodeFlow(s.logger, cr, aps)
+	acf := usecase.NewAuthorizationCodeFlow(s.logger, cr, sig, aps)
 
 	// Set up HTTP handlers
 	http.Handle("/authorize", authorize.NewAuthorizeHandler(s.logger, acf))

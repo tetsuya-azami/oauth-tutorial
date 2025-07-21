@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"errors"
 	"oauth-tutorial/internal/domain"
+	"oauth-tutorial/internal/session"
 )
 
 type AuthParamSession struct{}
@@ -12,13 +13,13 @@ func NewAuthParamSession() *AuthParamSession {
 }
 
 var (
-	sessionStore        = map[string]domain.AuthorizationCodeFlowParam{}
+	sessionStore        = map[session.SessionID]domain.AuthorizationCodeFlowParam{}
 	ErrInvalidParameter = errors.New("sessionID is required")
 	ErrSessionNotFound  = errors.New("authParam not found")
 )
 
 // TODO: 型で制約をかける
-func (s *AuthParamSession) Save(sessionID string, authParam *domain.AuthorizationCodeFlowParam) error {
+func (s *AuthParamSession) Save(sessionID session.SessionID, authParam *domain.AuthorizationCodeFlowParam) error {
 	if sessionID == "" {
 		return ErrInvalidParameter
 	}
@@ -30,7 +31,7 @@ func (s *AuthParamSession) Save(sessionID string, authParam *domain.Authorizatio
 	return nil
 }
 
-func (s *AuthParamSession) Get(sessionID string) (*domain.AuthorizationCodeFlowParam, error) {
+func (s *AuthParamSession) Get(sessionID session.SessionID) (*domain.AuthorizationCodeFlowParam, error) {
 	authParam, ok := sessionStore[sessionID]
 	if !ok {
 		return nil, ErrSessionNotFound
@@ -38,6 +39,6 @@ func (s *AuthParamSession) Get(sessionID string) (*domain.AuthorizationCodeFlowP
 	return &authParam, nil
 }
 
-func (s *AuthParamSession) Clear(sessionID string) {
+func (s *AuthParamSession) Clear(sessionID session.SessionID) {
 	delete(sessionStore, sessionID)
 }
