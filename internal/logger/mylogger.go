@@ -30,6 +30,6 @@ func (l *myLogger) Warn(msg string, args ...any) {
 // json形式のログを出力するためのLoggerを生成する関数
 func NewMyLogger() MyLogger {
 	return &myLogger{
-		logger: slog.New(slog.NewJSONHandler(os.Stderr, nil)),
+		logger: slog.New(slog.NewJSONHandler(os.Stdout, nil)),
 	}
 }
