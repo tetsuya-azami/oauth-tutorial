@@ -18,7 +18,6 @@ var (
 	ErrSessionNotFound  = errors.New("authParam not found")
 )
 
-// TODO: 型で制約をかける
 func (s *AuthParamSession) Save(sessionID session.SessionID, authParam *domain.AuthorizationCodeFlowParam) error {
 	if sessionID == "" {
 		return ErrInvalidParameter
