@@ -6,7 +6,7 @@ import (
 )
 
 type IClientRepository interface {
-	SelectByClientIDAndSecret(clientID string) (*domain.Client, error)
+	SelectByClientID(clientID string) (*domain.Client, error)
 }
 
 type IAuthParamSession interface {

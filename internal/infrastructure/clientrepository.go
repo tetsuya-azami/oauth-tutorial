@@ -18,7 +18,7 @@ func NewClientRepository() *ClientRepository {
 	return &ClientRepository{clients: clients}
 }
 
-func (r *ClientRepository) SelectByClientIDAndSecret(clientID string) (*domain.Client, error) {
+func (r *ClientRepository) SelectByClientID(clientID string) (*domain.Client, error) {
 	client, ok := r.clients[clientID]
 	if !ok {
 		return nil, ErrClientNotFound

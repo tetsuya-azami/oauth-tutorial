@@ -21,7 +21,7 @@ func NewMockClientRepository(client *domain.Client, err error) *MockClientReposi
 	}
 }
 
-func (m *MockClientRepository) SelectByClientIDAndSecret(clientID string) (*domain.Client, error) {
+func (m *MockClientRepository) SelectByClientID(clientID string) (*domain.Client, error) {
 	if m.err != nil {
 		return nil, m.err
 	}

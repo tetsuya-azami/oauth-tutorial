@@ -32,7 +32,7 @@ var (
 
 func (c *AuthorizationCodeFlow) Execute(param *domain.AuthorizationCodeFlowParam) error {
 	cr := c.clientRepository
-	client, err := cr.SelectByClientIDAndSecret(param.ClientID())
+	client, err := cr.SelectByClientID(param.ClientID())
 	if err != nil {
 		switch {
 		case errors.Is(err, infrastructure.ErrClientNotFound):
