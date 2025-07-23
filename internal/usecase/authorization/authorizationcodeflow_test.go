@@ -179,7 +179,7 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			flow := tt.setupFunc()
 
 			// when
-			err := flow.Execute(tt.param)
+			sessionID, err := flow.Execute(tt.param)
 
 			// then
 			if tt.wantErr {
@@ -193,6 +193,9 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			} else {
 				if err != nil {
 					t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
+				}
+				if sessionID != "test-session-id" {
+					t.Errorf("Execute() sessionID = %v, want %v", sessionID, "test-session-id")
 				}
 			}
 		})

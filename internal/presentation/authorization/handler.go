@@ -35,7 +35,7 @@ func (h *AuthorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.authorizationFlow.Execute(param)
+	sessionID, err := h.authorizationFlow.Execute(param)
 	if err != nil {
 		switch {
 		case errors.Is(err, usecase.ErrClientNotFound):
@@ -60,5 +60,12 @@ func (h *AuthorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.logger.Info("Client authorized successfully")
 
 	// 本来は認証画面を表示するが、ここではOKのレスポンスを返すだけとする
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    string(sessionID),
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+	})
 	presentation.WriteJSONResponse(w, http.StatusOK, presentation.SuccessResponse{Message: "OK"})
 }

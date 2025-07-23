@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/presentation"
+	"oauth-tutorial/internal/session"
 	"oauth-tutorial/internal/test"
 	usecase "oauth-tutorial/internal/usecase/authorization"
 	"testing"
@@ -23,8 +24,8 @@ func NewMockAuthorizationFlow(err error) *MockAuthorizationFlow {
 	}
 }
 
-func (m *MockAuthorizationFlow) Execute(param *domain.AuthorizationCodeFlowParam) error {
-	return m.err
+func (m *MockAuthorizationFlow) Execute(param *domain.AuthorizationCodeFlowParam) (session.SessionID, error) {
+	return "test-session-id", m.err
 }
 
 func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
@@ -33,6 +34,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 		queryParams    map[string]string
 		mockErr        error
 		wantStatusCode int
+		wantHeader     map[string]string
 		wantResponse   any
 	}{
 		{
@@ -46,6 +48,10 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			},
 			mockErr:        nil,
 			wantStatusCode: http.StatusOK,
+			wantHeader: map[string]string{
+				"Set-Cookie":   "session_id=test-session-id; Path=/; HttpOnly; Secure",
+				"Content-Type": "application/json",
+			},
 			wantResponse: presentation.SuccessResponse{
 				Message: "OK",
 			},
@@ -61,6 +67,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			},
 			mockErr:        nil,
 			wantStatusCode: http.StatusBadRequest,
+			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: presentation.ErrorResponse{
 				Message: "unsupported response_type: invalid",
 			},
@@ -76,6 +83,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			},
 			mockErr:        usecase.ErrClientNotFound,
 			wantStatusCode: http.StatusBadRequest,
+			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: presentation.ErrorResponse{
 				Message: "client not found",
 			},
@@ -91,6 +99,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			},
 			mockErr:        usecase.ErrInvalidRedirectURI,
 			wantStatusCode: http.StatusBadRequest,
+			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: presentation.ErrorResponse{
 				Message: "invalid redirect URI",
 			},
@@ -106,6 +115,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			},
 			mockErr:        errors.New("database connection failed"),
 			wantStatusCode: http.StatusInternalServerError,
+			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: presentation.ErrorResponse{
 				Message: "database connection failed",
 			},
@@ -121,6 +131,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			},
 			mockErr:        usecase.ErrServer,
 			wantStatusCode: http.StatusInternalServerError,
+			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: presentation.ErrorResponse{
 				Message: "server error occurred",
 			},
@@ -136,6 +147,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			},
 			mockErr:        usecase.ErrUnExpected,
 			wantStatusCode: http.StatusInternalServerError,
+			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: presentation.ErrorResponse{
 				Message: "unexpected error occurred",
 			},
@@ -163,6 +175,13 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 				t.Errorf("Status code = %d, want %d", rr.Code, tt.wantStatusCode)
 			}
 
+			// headersが正しいこと
+			for key, value := range tt.wantHeader {
+				if rr.Header().Get(key) != value {
+					t.Errorf("Header %s = %s, want %s", key, rr.Header().Get(key), value)
+				}
+			}
+
 			var actualResponse any
 			switch tt.wantResponse.(type) {
 			case presentation.ErrorResponse:
@@ -175,16 +194,12 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 				t.Fatalf("Failed to decode response: %v", err)
 			}
 
+			// response bodyが正しいこと
 			expectedJSONResponse, _ := json.Marshal(tt.wantResponse)
 			actualJSONResponse, _ := json.Marshal(actualResponse)
 
 			if string(actualJSONResponse) != string(expectedJSONResponse) {
 				t.Errorf("Response body = %s, want %s", actualJSONResponse, expectedJSONResponse)
-			}
-
-			contentType := rr.Header().Get("Content-Type")
-			if contentType != "application/json" {
-				t.Errorf("Content-Type = %s, want application/json", contentType)
 			}
 		})
 	}

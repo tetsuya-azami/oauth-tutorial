@@ -5,6 +5,7 @@ import (
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
 	"oauth-tutorial/internal/logger"
+	"oauth-tutorial/internal/session"
 )
 
 type AuthorizationCodeFlow struct {
@@ -30,23 +31,23 @@ var (
 	ErrServer             = errors.New("server error occurred")
 )
 
-func (c *AuthorizationCodeFlow) Execute(param *domain.AuthorizationCodeFlowParam) error {
+func (c *AuthorizationCodeFlow) Execute(param *domain.AuthorizationCodeFlowParam) (session.SessionID, error) {
 	cr := c.clientRepository
 	client, err := cr.SelectByClientID(param.ClientID())
 	if err != nil {
 		switch {
 		case errors.Is(err, infrastructure.ErrClientNotFound):
 			c.logger.Info("client not found", "clientID", param.ClientID())
-			return ErrClientNotFound
+			return "", ErrClientNotFound
 		default:
 			c.logger.Error("unexpected error occured", "error", err)
-			return ErrUnExpected
+			return "", ErrUnExpected
 		}
 	}
 
 	if !client.ContainsRedirectURI(param.RedirectURI()) {
 		c.logger.Info("invalid Redirect URI", "redirectURI", param.RedirectURI())
-		return ErrInvalidRedirectURI
+		return "", ErrInvalidRedirectURI
 	}
 
 	sessionID := c.sessionIDGenerator.Generate()
@@ -56,12 +57,12 @@ func (c *AuthorizationCodeFlow) Execute(param *domain.AuthorizationCodeFlowParam
 		switch {
 		case errors.Is(err, infrastructure.ErrInvalidParameter):
 			c.logger.Info("invalid session parameter", "error", err)
-			return ErrServer
+			return "", ErrServer
 		default:
 			c.logger.Error("unexpected error occured", "error", err)
-			return ErrUnExpected
+			return "", ErrUnExpected
 		}
 	}
 
-	return nil
+	return sessionID, nil
 }
