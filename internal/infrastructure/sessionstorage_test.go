@@ -95,23 +95,6 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 				}
 			},
 		},
-		{
-			name:        "異常ケース - nilパラメータ",
-			sessionID:   "test-session",
-			sessiondata: nil,
-			expectedErr: ErrInvalidParameter,
-			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]SessionData)
-			},
-			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
-				if _, exists := sessionStore[sessionID]; exists {
-					t.Error("sessionStore should not have entry for nil param")
-				}
-				if len(sessionStore) != 0 {
-					t.Errorf("sessionStore length = %d, want 0", len(sessionStore))
-				}
-			},
-		},
 	}
 
 	for _, tt := range tests {

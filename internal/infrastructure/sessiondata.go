@@ -13,3 +13,11 @@ func NewSessionData(authParam *domain.AuthorizationCodeFlowParam, user *domain.U
 		user:      user,
 	}
 }
+
+func (sd *SessionData) AuthParam() *domain.AuthorizationCodeFlowParam {
+	return sd.authParam
+}
+
+func (sd *SessionData) User() *domain.User {
+	return sd.user
+}
