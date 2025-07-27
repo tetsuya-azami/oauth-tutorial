@@ -6,6 +6,7 @@ import (
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/logger"
 	"oauth-tutorial/internal/presentation"
+	"oauth-tutorial/internal/session"
 	usecase "oauth-tutorial/internal/usecase/authorization"
 )
 
@@ -61,7 +62,7 @@ func (h *AuthorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// 本来は認証画面を表示するが、ここではOKのレスポンスを返すだけとする
 	http.SetCookie(w, &http.Cookie{
-		Name:     "SESSION_ID",
+		Name:     session.SessionIDCookieName,
 		Value:    string(sessionID),
 		Path:     "/",
 		HttpOnly: true,
