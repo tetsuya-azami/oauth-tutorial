@@ -77,31 +77,31 @@ func Test_認可リクエスト統合テスト(t *testing.T) {
 		t.Errorf("Expected message 'OK', got %v", message)
 	}
 
-	param, err := ss.Get(mockSessionID)
+	sessiondata, err := ss.Get(mockSessionID)
 	if err != nil {
 		t.Errorf("Failed to get session parameter: %v", err)
 	}
-	if param == nil {
+	if sessiondata == nil {
 		t.Error("Expected non-nil session parameter, got nil")
 	} else {
 		expectedResponseType, _ := domain.GetResponseType(responseType)
-		if param.ResponseType() != expectedResponseType {
-			t.Errorf("Expected response type %d, got %d", expectedResponseType, param.ResponseType())
+		if sessiondata.AuthParam().ResponseType() != expectedResponseType {
+			t.Errorf("Expected response type %d, got %d", expectedResponseType, sessiondata.AuthParam().ResponseType())
 		}
-		if param.ClientID() != clientID {
-			t.Errorf("Expected client ID %s, got %s", clientID, param.ClientID())
+		if sessiondata.AuthParam().ClientID() != clientID {
+			t.Errorf("Expected client ID %s, got %s", clientID, sessiondata.AuthParam().ClientID())
 		}
-		if param.RedirectURI() != redirectURI {
-			t.Errorf("Expected redirect URI %s, got %s", redirectURI, param.RedirectURI())
+		if sessiondata.AuthParam().RedirectURI() != redirectURI {
+			t.Errorf("Expected redirect URI %s, got %s", redirectURI, sessiondata.AuthParam().RedirectURI())
 		}
-		if len(param.Scopes()) == 0 || param.Scopes()[0] != scope {
-			t.Errorf("Expected scope %s, got %v", scope, param.Scopes())
+		if len(sessiondata.AuthParam().Scopes()) == 0 || sessiondata.AuthParam().Scopes()[0] != scope {
+			t.Errorf("Expected scope %s, got %v", scope, sessiondata.AuthParam().Scopes())
 		}
-		if param.Scopes()[0] != scope {
-			t.Errorf("Expected scope %s, got %s", scope, param.Scopes()[0])
+		if sessiondata.AuthParam().Scopes()[0] != scope {
+			t.Errorf("Expected scope %s, got %s", scope, sessiondata.AuthParam().Scopes()[0])
 		}
-		if param.State() != state {
-			t.Errorf("Expected state %s, got %s", state, param.State())
+		if sessiondata.AuthParam().State() != state {
+			t.Errorf("Expected state %s, got %s", state, sessiondata.AuthParam().State())
 		}
 	}
 }
