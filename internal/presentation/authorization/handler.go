@@ -31,7 +31,7 @@ func (h *AuthorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	param, err := domain.NewAuthorizationCodeFlowParam(h.logger, responseType, clientID, redirectURI, scope, state)
 	if err != nil {
-		presentation.WriteJSONResponse(w, http.StatusBadRequest, presentation.ErrorResponse{Message: err.Error()})
+		presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -40,19 +40,19 @@ func (h *AuthorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, usecase.ErrClientNotFound):
 			h.logger.Info("Client not found", "clientID", clientID)
-			presentation.WriteJSONResponse(w, http.StatusBadRequest, presentation.ErrorResponse{Message: err.Error()})
+			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		case errors.Is(err, usecase.ErrInvalidRedirectURI):
 			h.logger.Info("Invalid redirect URI", "redirectURI", redirectURI)
-			presentation.WriteJSONResponse(w, http.StatusBadRequest, presentation.ErrorResponse{Message: err.Error()})
+			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		case errors.Is(err, usecase.ErrUnExpected):
 			h.logger.Error("Unexpected error occurred", "error", err)
-			presentation.WriteJSONResponse(w, http.StatusInternalServerError, presentation.ErrorResponse{Message: err.Error()})
+			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
 		case errors.Is(err, usecase.ErrServer):
 			h.logger.Error("Server error occurred", "error", err)
-			presentation.WriteJSONResponse(w, http.StatusInternalServerError, presentation.ErrorResponse{Message: err.Error()})
+			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
 		default:
 			h.logger.Error("Unexpected error occurred while getting client", "error", err)
-			presentation.WriteJSONResponse(w, http.StatusInternalServerError, presentation.ErrorResponse{Message: err.Error()})
+			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
 		}
 		return
 	}
@@ -67,5 +67,5 @@ func (h *AuthorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   true,
 	})
-	presentation.WriteJSONResponse(w, http.StatusOK, presentation.SuccessResponse{Message: "OK"})
+	presentation.WriteJSONResponse(w, http.StatusOK, SuccessResponse{Message: "OK"})
 }

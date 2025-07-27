@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"oauth-tutorial/internal/domain"
-	"oauth-tutorial/internal/presentation"
 	"oauth-tutorial/internal/session"
 	"oauth-tutorial/internal/test"
 	usecase "oauth-tutorial/internal/usecase/authorization"
@@ -52,7 +51,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 				"Set-Cookie":   "session_id=test-session-id; Path=/; HttpOnly; Secure",
 				"Content-Type": "application/json",
 			},
-			wantResponse: presentation.SuccessResponse{
+			wantResponse: SuccessResponse{
 				Message: "OK",
 			},
 		},
@@ -68,7 +67,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			mockErr:        nil,
 			wantStatusCode: http.StatusBadRequest,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
-			wantResponse: presentation.ErrorResponse{
+			wantResponse: ErrorResponse{
 				Message: "unsupported response_type: invalid",
 			},
 		},
@@ -84,7 +83,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			mockErr:        usecase.ErrClientNotFound,
 			wantStatusCode: http.StatusBadRequest,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
-			wantResponse: presentation.ErrorResponse{
+			wantResponse: ErrorResponse{
 				Message: "client not found",
 			},
 		},
@@ -100,7 +99,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			mockErr:        usecase.ErrInvalidRedirectURI,
 			wantStatusCode: http.StatusBadRequest,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
-			wantResponse: presentation.ErrorResponse{
+			wantResponse: ErrorResponse{
 				Message: "invalid redirect URI",
 			},
 		},
@@ -116,7 +115,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			mockErr:        errors.New("database connection failed"),
 			wantStatusCode: http.StatusInternalServerError,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
-			wantResponse: presentation.ErrorResponse{
+			wantResponse: ErrorResponse{
 				Message: "database connection failed",
 			},
 		},
@@ -132,7 +131,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			mockErr:        usecase.ErrServer,
 			wantStatusCode: http.StatusInternalServerError,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
-			wantResponse: presentation.ErrorResponse{
+			wantResponse: ErrorResponse{
 				Message: "server error occurred",
 			},
 		},
@@ -148,7 +147,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			mockErr:        usecase.ErrUnExpected,
 			wantStatusCode: http.StatusInternalServerError,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
-			wantResponse: presentation.ErrorResponse{
+			wantResponse: ErrorResponse{
 				Message: "unexpected error occurred",
 			},
 		},
@@ -184,10 +183,10 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 
 			var actualResponse any
 			switch tt.wantResponse.(type) {
-			case presentation.ErrorResponse:
-				actualResponse = &presentation.ErrorResponse{}
-			case presentation.SuccessResponse:
-				actualResponse = &presentation.SuccessResponse{}
+			case ErrorResponse:
+				actualResponse = &ErrorResponse{}
+			case SuccessResponse:
+				actualResponse = &SuccessResponse{}
 			}
 
 			if err := json.NewDecoder(rr.Body).Decode(actualResponse); err != nil {
