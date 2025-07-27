@@ -48,7 +48,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			mockErr:        nil,
 			wantStatusCode: http.StatusOK,
 			wantHeader: map[string]string{
-				"Set-Cookie":   "session_id=test-session-id; Path=/; HttpOnly; Secure",
+				"Set-Cookie":   "SESSION_ID=test-session-id; Path=/; HttpOnly; Secure",
 				"Content-Type": "application/json",
 			},
 			wantResponse: SuccessResponse{

@@ -61,7 +61,7 @@ func (h *AuthorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// 本来は認証画面を表示するが、ここではOKのレスポンスを返すだけとする
 	http.SetCookie(w, &http.Cookie{
-		Name:     "session_id",
+		Name:     "SESSION_ID",
 		Value:    string(sessionID),
 		Path:     "/",
 		HttpOnly: true,
