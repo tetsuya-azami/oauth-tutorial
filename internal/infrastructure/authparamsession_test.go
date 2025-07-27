@@ -28,18 +28,18 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 		sessionID   session.SessionID
 		param       *domain.AuthorizationCodeFlowParam
 		expectedErr error
-		setupFunc   func(*AuthParamSession)
-		checkFunc   func(*testing.T, *AuthParamSession, session.SessionID)
+		setupFunc   func(*SessionStorage)
+		checkFunc   func(*testing.T, *SessionStorage, session.SessionID)
 	}{
 		{
 			name:        "正常ケース - 新しいセッションの保存",
 			sessionID:   session.SessionID("test-session-id"),
 			param:       validParam,
 			expectedErr: nil,
-			setupFunc: func(aps *AuthParamSession) {
+			setupFunc: func(ss *SessionStorage) {
 				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
 			},
-			checkFunc: func(t *testing.T, aps *AuthParamSession, sessionID session.SessionID) {
+			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
 				// 正しいキーで保存されていること
 				if _, exists := sessionStore[sessionID]; !exists {
 					t.Error("authParam should be saved with correct sessionID")
@@ -54,7 +54,7 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 			sessionID:   "existing-session",
 			param:       validParam,
 			expectedErr: nil,
-			setupFunc: func(aps *AuthParamSession) {
+			setupFunc: func(ss *SessionStorage) {
 				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
 				oldParam, _ := domain.NewAuthorizationCodeFlowParam(
 					logger,
@@ -66,7 +66,7 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 				)
 				sessionStore[session.SessionID("existing-session")] = *oldParam
 			},
-			checkFunc: func(t *testing.T, aps *AuthParamSession, sessionID session.SessionID) {
+			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
 				// 上書きされていること
 				if _, exists := sessionStore[sessionID]; !exists {
 					t.Error("authParam should be saved with correct sessionID")
@@ -83,10 +83,10 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 			sessionID:   session.SessionID(""),
 			param:       validParam,
 			expectedErr: ErrInvalidParameter,
-			setupFunc: func(aps *AuthParamSession) {
+			setupFunc: func(ss *SessionStorage) {
 				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
 			},
-			checkFunc: func(t *testing.T, aps *AuthParamSession, sessionID session.SessionID) {
+			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
 				if _, exists := sessionStore[sessionID]; exists {
 					t.Error("sessionStore should not have entry for empty sessionID")
 				}
@@ -100,10 +100,10 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 			sessionID:   "test-session",
 			param:       nil,
 			expectedErr: ErrInvalidParameter,
-			setupFunc: func(aps *AuthParamSession) {
+			setupFunc: func(ss *SessionStorage) {
 				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
 			},
-			checkFunc: func(t *testing.T, aps *AuthParamSession, sessionID session.SessionID) {
+			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
 				if _, exists := sessionStore[sessionID]; exists {
 					t.Error("sessionStore should not have entry for nil param")
 				}
@@ -116,7 +116,7 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			session := NewAuthParamSession()
+			session := NewSessionStorage()
 
 			// given
 			if tt.setupFunc != nil {
@@ -148,7 +148,7 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 }
 
 func Test_認可リクエストパラメータの取得(t *testing.T) {
-	aps := NewAuthParamSession()
+	ss := NewSessionStorage()
 	logger := logger.NewMyLogger()
 
 	// sessionStoreを初期化（他のテストの影響を避けるため）
@@ -168,7 +168,7 @@ func Test_認可リクエストパラメータの取得(t *testing.T) {
 	}
 
 	sessionID := session.SessionID("test-session-id")
-	err = aps.Save(sessionID, param)
+	err = ss.Save(sessionID, param)
 	if err != nil {
 		t.Fatalf("Save() error = %v", err)
 	}
@@ -201,7 +201,7 @@ func Test_認可リクエストパラメータの取得(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := aps.Get(tt.sessionID)
+			result, err := ss.Get(tt.sessionID)
 
 			if tt.wantErr {
 				if err == nil {
@@ -245,12 +245,12 @@ func Test_認可リクエストパラメータの削除(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		setupFunc func(*AuthParamSession)
+		setupFunc func(*SessionStorage)
 		sessionID session.SessionID
 	}{
 		{
 			name: "正常系 - 既存セッションの削除",
-			setupFunc: func(aps *AuthParamSession) {
+			setupFunc: func(ss *SessionStorage) {
 				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
 				param, err := domain.NewAuthorizationCodeFlowParam(
 					logger,
@@ -269,14 +269,14 @@ func Test_認可リクエストパラメータの削除(t *testing.T) {
 		},
 		{
 			name: "異常系 - 存在しないセッションの削除",
-			setupFunc: func(aps *AuthParamSession) {
+			setupFunc: func(ss *SessionStorage) {
 				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
 			},
 			sessionID: session.SessionID("non-existing-session"),
 		},
 		{
 			name: "異常系 - 空のセッションIDの削除",
-			setupFunc: func(aps *AuthParamSession) {
+			setupFunc: func(ss *SessionStorage) {
 				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
 			},
 			sessionID: session.SessionID(""),
@@ -285,7 +285,7 @@ func Test_認可リクエストパラメータの削除(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			session := NewAuthParamSession()
+			session := NewSessionStorage()
 			tt.setupFunc(session)
 
 			session.Clear(tt.sessionID)
@@ -299,7 +299,7 @@ func Test_認可リクエストパラメータの削除(t *testing.T) {
 }
 
 func TestAuthParamSession_MultipleSession(t *testing.T) {
-	aps := NewAuthParamSession()
+	ss := NewSessionStorage()
 	logger := logger.NewMyLogger()
 
 	// sessionStoreを初期化
@@ -332,7 +332,7 @@ func TestAuthParamSession_MultipleSession(t *testing.T) {
 			t.Fatalf("Failed to create AuthorizationCodeFlowParam: %v", err)
 		}
 
-		err = aps.Save(s.sessionID, param)
+		err = ss.Save(s.sessionID, param)
 		if err != nil {
 			t.Fatalf("Save() error = %v", err)
 		}
@@ -342,7 +342,7 @@ func TestAuthParamSession_MultipleSession(t *testing.T) {
 
 	// 全てのセッションが正しく取得できることを確認
 	for i, s := range sessions {
-		result, err := aps.Get(s.sessionID)
+		result, err := ss.Get(s.sessionID)
 		if err != nil {
 			t.Errorf("Get() for session %s error = %v", s.sessionID, err)
 		}

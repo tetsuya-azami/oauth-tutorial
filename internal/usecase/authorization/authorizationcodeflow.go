@@ -11,16 +11,16 @@ import (
 type AuthorizationCodeFlow struct {
 	logger             logger.MyLogger
 	clientRepository   IClientRepository
-	sessionStore       IAuthParamSession
+	sessionStore       ISessionStorage
 	sessionIDGenerator ISessionIDGenerator
 }
 
-func NewAuthorizationCodeFlow(logger logger.MyLogger, cr IClientRepository, sessionIDGenerator ISessionIDGenerator, sessionStore IAuthParamSession) *AuthorizationCodeFlow {
+func NewAuthorizationCodeFlow(logger logger.MyLogger, cr IClientRepository, sessionIDGenerator ISessionIDGenerator, sessionStorage ISessionStorage) *AuthorizationCodeFlow {
 	return &AuthorizationCodeFlow{
 		logger:             logger,
 		clientRepository:   cr,
 		sessionIDGenerator: sessionIDGenerator,
-		sessionStore:       sessionStore,
+		sessionStore:       sessionStorage,
 	}
 }
 

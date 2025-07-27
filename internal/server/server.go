@@ -27,8 +27,8 @@ func (s *Server) Start() {
 	// Initialize repositories and use cases
 	cr := infrastructure.NewClientRepository()
 	sig := session.NewSessionIDGenerator()
-	aps := infrastructure.NewAuthParamSession()
-	acf := usecase.NewAuthorizationCodeFlow(s.logger, cr, sig, aps)
+	ss := infrastructure.NewSessionStorage()
+	acf := usecase.NewAuthorizationCodeFlow(s.logger, cr, sig, ss)
 
 	// Set up HTTP handlers
 	http.Handle("/authorize", authorize.NewAuthorizeHandler(s.logger, acf))

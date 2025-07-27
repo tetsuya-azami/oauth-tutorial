@@ -6,10 +6,10 @@ import (
 	"oauth-tutorial/internal/session"
 )
 
-type AuthParamSession struct{}
+type SessionStorage struct{}
 
-func NewAuthParamSession() *AuthParamSession {
-	return &AuthParamSession{}
+func NewSessionStorage() *SessionStorage {
+	return &SessionStorage{}
 }
 
 var (
@@ -18,7 +18,7 @@ var (
 	ErrSessionNotFound  = errors.New("authParam not found")
 )
 
-func (s *AuthParamSession) Save(sessionID session.SessionID, authParam *domain.AuthorizationCodeFlowParam) error {
+func (s *SessionStorage) Save(sessionID session.SessionID, authParam *domain.AuthorizationCodeFlowParam) error {
 	if sessionID == "" {
 		return ErrInvalidParameter
 	}
@@ -30,7 +30,7 @@ func (s *AuthParamSession) Save(sessionID session.SessionID, authParam *domain.A
 	return nil
 }
 
-func (s *AuthParamSession) Get(sessionID session.SessionID) (*domain.AuthorizationCodeFlowParam, error) {
+func (s *SessionStorage) Get(sessionID session.SessionID) (*domain.AuthorizationCodeFlowParam, error) {
 	authParam, ok := sessionStore[sessionID]
 	if !ok {
 		return nil, ErrSessionNotFound
@@ -38,6 +38,6 @@ func (s *AuthParamSession) Get(sessionID session.SessionID) (*domain.Authorizati
 	return &authParam, nil
 }
 
-func (s *AuthParamSession) Clear(sessionID session.SessionID) {
+func (s *SessionStorage) Clear(sessionID session.SessionID) {
 	delete(sessionStore, sessionID)
 }

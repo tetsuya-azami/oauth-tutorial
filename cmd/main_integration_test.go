@@ -30,8 +30,8 @@ func Test_認可リクエスト統合テスト(t *testing.T) {
 	logger := logger.NewMyLogger()
 	cr := infrastructure.NewClientRepository()
 	sig := &MockSessionIDGenerator{}
-	aps := infrastructure.NewAuthParamSession()
-	acf := usecase.NewAuthorizationCodeFlow(logger, cr, sig, aps)
+	ss := infrastructure.NewSessionStorage()
+	acf := usecase.NewAuthorizationCodeFlow(logger, cr, sig, ss)
 
 	mux := http.NewServeMux()
 	mux.Handle("/authorize", authorize.NewAuthorizeHandler(logger, acf))
@@ -77,7 +77,7 @@ func Test_認可リクエスト統合テスト(t *testing.T) {
 		t.Errorf("Expected message 'OK', got %v", message)
 	}
 
-	param, err := aps.Get(mockSessionID)
+	param, err := ss.Get(mockSessionID)
 	if err != nil {
 		t.Errorf("Failed to get session parameter: %v", err)
 	}

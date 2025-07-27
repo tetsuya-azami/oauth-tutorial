@@ -4,6 +4,8 @@ import (
 	"github.com/google/uuid"
 )
 
+const SessionIDCookieName = "SESSION_ID"
+
 type SessionID string
 type SessionIDGenerator struct{}
 

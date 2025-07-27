@@ -9,7 +9,7 @@ type IClientRepository interface {
 	SelectByClientID(clientID string) (*domain.Client, error)
 }
 
-type IAuthParamSession interface {
+type ISessionStorage interface {
 	Save(sessionID session.SessionID, authParam *domain.AuthorizationCodeFlowParam) error
 }
 
