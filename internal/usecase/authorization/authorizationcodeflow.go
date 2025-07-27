@@ -52,7 +52,7 @@ func (c *AuthorizationCodeFlow) Execute(param *domain.AuthorizationCodeFlowParam
 
 	sessionID := c.sessionIDGenerator.Generate()
 
-	err = c.sessionStore.Save(sessionID, param)
+	err = c.sessionStore.Save(sessionID, infrastructure.NewSessionData(param, nil))
 	if err != nil {
 		switch {
 		case errors.Is(err, infrastructure.ErrInvalidParameter):

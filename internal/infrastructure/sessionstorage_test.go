@@ -26,7 +26,7 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 	tests := []struct {
 		name        string
 		sessionID   session.SessionID
-		param       *domain.AuthorizationCodeFlowParam
+		sessiondata *SessionData
 		expectedErr error
 		setupFunc   func(*SessionStorage)
 		checkFunc   func(*testing.T, *SessionStorage, session.SessionID)
@@ -34,10 +34,10 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 		{
 			name:        "正常ケース - 新しいセッションの保存",
 			sessionID:   session.SessionID("test-session-id"),
-			param:       validParam,
+			sessiondata: NewSessionData(validParam, nil),
 			expectedErr: nil,
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
+				sessionStore = make(map[session.SessionID]SessionData)
 			},
 			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
 				// 正しいキーで保存されていること
@@ -52,10 +52,10 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 		{
 			name:        "正常ケース - 既存セッションの上書き",
 			sessionID:   "existing-session",
-			param:       validParam,
+			sessiondata: NewSessionData(validParam, nil),
 			expectedErr: nil,
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
+				sessionStore = make(map[session.SessionID]SessionData)
 				oldParam, _ := domain.NewAuthorizationCodeFlowParam(
 					logger,
 					"code",
@@ -64,7 +64,7 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 					"read",
 					"old-state",
 				)
-				sessionStore[session.SessionID("existing-session")] = *oldParam
+				sessionStore[session.SessionID("existing-session")] = *NewSessionData(oldParam, nil)
 			},
 			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
 				// 上書きされていること
@@ -73,18 +73,18 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 				}
 				// 新しい値で上書きされていること
 				saved := sessionStore[sessionID]
-				if saved.ClientID() != validParam.ClientID() {
-					t.Errorf("saved ClientID = %s, want %s", saved.ClientID(), validParam.ClientID())
+				if saved.authParam.ClientID() != validParam.ClientID() {
+					t.Errorf("saved ClientID = %s, want %s", saved.authParam.ClientID(), validParam.ClientID())
 				}
 			},
 		},
 		{
 			name:        "異常ケース - 空のセッションID",
 			sessionID:   session.SessionID(""),
-			param:       validParam,
+			sessiondata: NewSessionData(validParam, nil),
 			expectedErr: ErrInvalidParameter,
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
+				sessionStore = make(map[session.SessionID]SessionData)
 			},
 			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
 				if _, exists := sessionStore[sessionID]; exists {
@@ -98,10 +98,10 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 		{
 			name:        "異常ケース - nilパラメータ",
 			sessionID:   "test-session",
-			param:       nil,
+			sessiondata: nil,
 			expectedErr: ErrInvalidParameter,
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
+				sessionStore = make(map[session.SessionID]SessionData)
 			},
 			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
 				if _, exists := sessionStore[sessionID]; exists {
@@ -124,7 +124,7 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 			}
 
 			// when
-			err := session.Save(tt.sessionID, tt.param)
+			err := session.Save(tt.sessionID, tt.sessiondata)
 
 			// then
 			if tt.expectedErr != nil {
@@ -152,7 +152,7 @@ func Test_認可リクエストパラメータの取得(t *testing.T) {
 	logger := logger.NewMyLogger()
 
 	// sessionStoreを初期化（他のテストの影響を避けるため）
-	sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
+	sessionStore = make(map[session.SessionID]SessionData)
 
 	// テスト用のAuthorizationCodeFlowParamを作成・保存
 	param, err := domain.NewAuthorizationCodeFlowParam(
@@ -168,7 +168,7 @@ func Test_認可リクエストパラメータの取得(t *testing.T) {
 	}
 
 	sessionID := session.SessionID("test-session-id")
-	err = ss.Save(sessionID, param)
+	err = ss.Save(sessionID, NewSessionData(param, nil))
 	if err != nil {
 		t.Fatalf("Save() error = %v", err)
 	}
@@ -226,14 +226,14 @@ func Test_認可リクエストパラメータの取得(t *testing.T) {
 					return
 				}
 				// 値が正しく取得できることを確認
-				if result.ClientID() != param.ClientID() {
-					t.Errorf("Get() result.ClientID() = %v, want %v", result.ClientID(), param.ClientID())
+				if result.authParam.ClientID() != param.ClientID() {
+					t.Errorf("Get() result.ClientID() = %v, want %v", result.authParam.ClientID(), param.ClientID())
 				}
-				if result.RedirectURI() != param.RedirectURI() {
-					t.Errorf("Get() result.RedirectURI() = %v, want %v", result.RedirectURI(), param.RedirectURI())
+				if result.authParam.RedirectURI() != param.RedirectURI() {
+					t.Errorf("Get() result.RedirectURI() = %v, want %v", result.authParam.RedirectURI(), param.RedirectURI())
 				}
-				if result.State() != param.State() {
-					t.Errorf("Get() result.State() = %v, want %v", result.State(), param.State())
+				if result.authParam.State() != param.State() {
+					t.Errorf("Get() result.State() = %v, want %v", result.authParam.State(), param.State())
 				}
 			}
 		})
@@ -251,7 +251,7 @@ func Test_認可リクエストパラメータの削除(t *testing.T) {
 		{
 			name: "正常系 - 既存セッションの削除",
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
+				sessionStore = make(map[session.SessionID]SessionData)
 				param, err := domain.NewAuthorizationCodeFlowParam(
 					logger,
 					"code",
@@ -263,21 +263,21 @@ func Test_認可リクエストパラメータの削除(t *testing.T) {
 				if err != nil {
 					t.Fatalf("Failed to create AuthorizationCodeFlowParam: %v", err)
 				}
-				sessionStore[session.SessionID("test-session-id")] = *param
+				sessionStore[session.SessionID("test-session-id")] = *NewSessionData(param, nil)
 			},
 			sessionID: session.SessionID("test-session-id"),
 		},
 		{
 			name: "異常系 - 存在しないセッションの削除",
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
+				sessionStore = make(map[session.SessionID]SessionData)
 			},
 			sessionID: session.SessionID("non-existing-session"),
 		},
 		{
 			name: "異常系 - 空のセッションIDの削除",
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
+				sessionStore = make(map[session.SessionID]SessionData)
 			},
 			sessionID: session.SessionID(""),
 		},
@@ -288,7 +288,7 @@ func Test_認可リクエストパラメータの削除(t *testing.T) {
 			session := NewSessionStorage()
 			tt.setupFunc(session)
 
-			session.Clear(tt.sessionID)
+			session.Save(tt.sessionID, nil)
 			afterLen := len(sessionStore)
 
 			if afterLen != 0 {
@@ -303,7 +303,7 @@ func TestAuthParamSession_MultipleSession(t *testing.T) {
 	logger := logger.NewMyLogger()
 
 	// sessionStoreを初期化
-	sessionStore = make(map[session.SessionID]domain.AuthorizationCodeFlowParam)
+	sessionStore = make(map[session.SessionID]SessionData)
 
 	// 複数のセッションを保存
 	sessions := []struct {
@@ -332,7 +332,7 @@ func TestAuthParamSession_MultipleSession(t *testing.T) {
 			t.Fatalf("Failed to create AuthorizationCodeFlowParam: %v", err)
 		}
 
-		err = ss.Save(s.sessionID, param)
+		err = ss.Save(s.sessionID, NewSessionData(param, nil))
 		if err != nil {
 			t.Fatalf("Save() error = %v", err)
 		}
@@ -346,11 +346,11 @@ func TestAuthParamSession_MultipleSession(t *testing.T) {
 		if err != nil {
 			t.Errorf("Get() for session %s error = %v", s.sessionID, err)
 		}
-		if result.ClientID() != params[i].ClientID() {
-			t.Errorf("Get() result.ClientID() = %v, want %v", result.ClientID(), params[i].ClientID())
+		if result.authParam.ClientID() != params[i].ClientID() {
+			t.Errorf("Get() result.ClientID() = %v, want %v", result.authParam.ClientID(), params[i].ClientID())
 		}
-		if result.State() != params[i].State() {
-			t.Errorf("Get() result.State() = %v, want %v", result.State(), params[i].State())
+		if result.authParam.State() != params[i].State() {
+			t.Errorf("Get() result.State() = %v, want %v", result.authParam.State(), params[i].State())
 		}
 	}
 }

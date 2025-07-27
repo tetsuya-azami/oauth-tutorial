@@ -2,7 +2,6 @@ package infrastructure
 
 import (
 	"errors"
-	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/session"
 )
 
@@ -13,31 +12,24 @@ func NewSessionStorage() *SessionStorage {
 }
 
 var (
-	sessionStore        = map[session.SessionID]domain.AuthorizationCodeFlowParam{}
+	sessionStore        = map[session.SessionID]SessionData{}
 	ErrInvalidParameter = errors.New("sessionID is required")
 	ErrSessionNotFound  = errors.New("authParam not found")
 )
 
-func (s *SessionStorage) Save(sessionID session.SessionID, authParam *domain.AuthorizationCodeFlowParam) error {
+func (s *SessionStorage) Save(sessionID session.SessionID, sessiondata *SessionData) error {
 	if sessionID == "" {
 		return ErrInvalidParameter
 	}
-	if authParam == nil {
-		return ErrInvalidParameter
-	}
 
-	sessionStore[sessionID] = *authParam
+	sessionStore[sessionID] = *sessiondata
 	return nil
 }
 
-func (s *SessionStorage) Get(sessionID session.SessionID) (*domain.AuthorizationCodeFlowParam, error) {
-	authParam, ok := sessionStore[sessionID]
+func (s *SessionStorage) Get(sessionID session.SessionID) (*SessionData, error) {
+	sessionData, ok := sessionStore[sessionID]
 	if !ok {
 		return nil, ErrSessionNotFound
 	}
-	return &authParam, nil
-}
-
-func (s *SessionStorage) Clear(sessionID session.SessionID) {
-	delete(sessionStore, sessionID)
+	return &sessionData, nil
 }

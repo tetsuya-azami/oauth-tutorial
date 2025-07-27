@@ -42,17 +42,17 @@ func (m *MockSessionIdGenerator) Generate() session.SessionID {
 	return m.id
 }
 
-type MockAuthParamSession struct {
+type MockSessionStorage struct {
 	err error
 }
 
-func NewMockAuthParamSession(err error) *MockAuthParamSession {
-	return &MockAuthParamSession{
+func NewMockSessionStorage(err error) *MockSessionStorage {
+	return &MockSessionStorage{
 		err: err,
 	}
 }
 
-func (m *MockAuthParamSession) Save(sessionID session.SessionID, authParam *domain.AuthorizationCodeFlowParam) error {
+func (m *MockSessionStorage) Save(sessionID session.SessionID, sessiondata *infrastructure.SessionData) error {
 	if m.err != nil {
 		return m.err
 	}
@@ -104,9 +104,9 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			param: validParam,
 			setupFunc: func() *AuthorizationCodeFlow {
 				cr := NewMockClientRepository(validClient, nil)
-				aps := NewMockAuthParamSession(nil)
+				ss := NewMockSessionStorage(nil)
 				sig := NewMockSessionIdGenerator("test-session-id")
-				return NewAuthorizationCodeFlow(logger, cr, sig, aps)
+				return NewAuthorizationCodeFlow(logger, cr, sig, ss)
 			},
 			wantErr:     false,
 			expectedErr: nil,
@@ -116,7 +116,7 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			param: validParam,
 			setupFunc: func() *AuthorizationCodeFlow {
 				clientRepo := NewMockClientRepository(nil, infrastructure.ErrClientNotFound)
-				sessionStore := NewMockAuthParamSession(nil)
+				sessionStore := NewMockSessionStorage(nil)
 				sig := NewMockSessionIdGenerator("test-session-id")
 				return NewAuthorizationCodeFlow(logger, clientRepo, sig, sessionStore)
 			},
@@ -128,7 +128,7 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			param: validParam,
 			setupFunc: func() *AuthorizationCodeFlow {
 				clientRepo := NewMockClientRepository(nil, errors.New("database error"))
-				sessionStore := NewMockAuthParamSession(nil)
+				sessionStore := NewMockSessionStorage(nil)
 				sig := NewMockSessionIdGenerator("test-session-id")
 				return NewAuthorizationCodeFlow(logger, clientRepo, sig, sessionStore)
 			},
@@ -140,7 +140,7 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			param: invalidRedirectParam,
 			setupFunc: func() *AuthorizationCodeFlow {
 				clientRepo := NewMockClientRepository(validClient, nil)
-				sessionStore := NewMockAuthParamSession(nil)
+				sessionStore := NewMockSessionStorage(nil)
 				sig := NewMockSessionIdGenerator("test-session-id")
 				return NewAuthorizationCodeFlow(logger, clientRepo, sig, sessionStore)
 			},
@@ -152,7 +152,7 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			param: validParam,
 			setupFunc: func() *AuthorizationCodeFlow {
 				clientRepo := NewMockClientRepository(validClient, nil)
-				sessionStore := NewMockAuthParamSession(infrastructure.ErrInvalidParameter)
+				sessionStore := NewMockSessionStorage(infrastructure.ErrInvalidParameter)
 				sig := NewMockSessionIdGenerator("test-session-id")
 				return NewAuthorizationCodeFlow(logger, clientRepo, sig, sessionStore)
 			},
@@ -164,7 +164,7 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			param: validParam,
 			setupFunc: func() *AuthorizationCodeFlow {
 				clientRepo := NewMockClientRepository(validClient, nil)
-				sessionStore := NewMockAuthParamSession(errors.New("unexpected error"))
+				sessionStore := NewMockSessionStorage(errors.New("unexpected error"))
 				sig := NewMockSessionIdGenerator("test-session-id")
 				return NewAuthorizationCodeFlow(logger, clientRepo, sig, sessionStore)
 			},

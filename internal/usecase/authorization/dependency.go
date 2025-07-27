@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"oauth-tutorial/internal/domain"
+	"oauth-tutorial/internal/infrastructure"
 	"oauth-tutorial/internal/session"
 )
 
@@ -10,7 +11,7 @@ type IClientRepository interface {
 }
 
 type ISessionStorage interface {
-	Save(sessionID session.SessionID, authParam *domain.AuthorizationCodeFlowParam) error
+	Save(sessionID session.SessionID, sessionData *infrastructure.SessionData) error
 }
 
 type ISessionIDGenerator interface {
