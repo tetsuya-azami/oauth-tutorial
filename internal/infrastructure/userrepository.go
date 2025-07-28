@@ -10,10 +10,6 @@ type LoginPasswordPair struct {
 	Password string
 }
 
-type IUserRepository interface {
-	SelectByLoginIDAndPassword(loginID, password string) (*domain.User, error)
-}
-
 var ErrUserNotFound = errors.New("user not found")
 
 var users = map[LoginPasswordPair]*domain.User{
