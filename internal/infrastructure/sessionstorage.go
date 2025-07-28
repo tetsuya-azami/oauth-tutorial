@@ -14,7 +14,7 @@ func NewSessionStorage() *SessionStorage {
 var (
 	sessionStore        = map[session.SessionID]SessionData{}
 	ErrInvalidParameter = errors.New("sessionID is required")
-	ErrSessionNotFound  = errors.New("authParam not found")
+	ErrSessionNotFound  = errors.New("session not found")
 )
 
 func (s *SessionStorage) Save(sessionID session.SessionID, sessiondata *SessionData) error {
