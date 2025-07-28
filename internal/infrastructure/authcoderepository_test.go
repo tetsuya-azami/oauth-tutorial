@@ -1,8 +1,8 @@
 package infrastructure
 
 import (
-	"oauth-tutorial/internal/crypto"
 	"oauth-tutorial/internal/domain"
+	"oauth-tutorial/internal/mycrypto"
 	"sort"
 	"sync"
 	"testing"
@@ -191,7 +191,7 @@ func TestAuthCodeRepository_ConcurrentAccess(t *testing.T) {
 		go func(id int) {
 			defer wg.Done()
 			authCode := domain.NewAuthorizationCode(
-				&crypto.RandomGenerator{},
+				&mycrypto.RandomGenerator{},
 				"test-user",
 				"test-client",
 				[]string{"read"},

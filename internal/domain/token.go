@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"oauth-tutorial/internal/crypto"
+	"oauth-tutorial/internal/mycrypto"
 	"time"
 )
 
@@ -18,7 +18,7 @@ const (
 )
 
 func NewAccessToken(clientID, userID string, scopes []string, now time.Time) *AccessToken {
-	g := crypto.RandomGenerator{}
+	g := mycrypto.RandomGenerator{}
 	expiresAt := now.Local().Add(ACCESS_TOKEN_DURATION).Unix()
 	at := g.GenerateURLSafeRandomString(32)
 	return &AccessToken{
