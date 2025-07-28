@@ -6,8 +6,6 @@ flowchart TD
     EXTRACT_VALIDATE_PARAMS -->|不正| BAD_REQUEST_RESPONSE[400 Bad Request]
     EXTRACT_VALIDATE_PARAMS -->|正常| CALL_USECASE[UseCase呼び出し]
 
-
-
     CALL_USECASE --> USECASE_EXECUTE[認可コード発行UseCase実行]
     USECASE_EXECUTE --> GET_PARAMETER_FROM_SESSION[セッションストレージから認可エンドポイントリクエスト時のパラメーター取得]
     GET_PARAMETER_FROM_SESSION --> SESSION_STORAGE[セッションストレージ]
