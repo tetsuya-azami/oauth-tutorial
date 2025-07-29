@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"oauth-tutorial/internal/infrastructure"
-	"oauth-tutorial/internal/logger"
+	"oauth-tutorial/pkg/logger"
 	"oauth-tutorial/internal/mycrypto"
 	authorize "oauth-tutorial/internal/presentation/authorization"
 	"oauth-tutorial/internal/presentation/decision"

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
-	"oauth-tutorial/internal/logger"
+	"oauth-tutorial/pkg/logger"
 	"oauth-tutorial/internal/session"
 )
 

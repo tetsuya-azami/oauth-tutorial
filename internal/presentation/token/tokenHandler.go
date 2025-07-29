@@ -2,7 +2,7 @@ package tokenhandler
 
 import (
 	"net/http"
-	"oauth-tutorial/internal/logger"
+	"oauth-tutorial/pkg/logger"
 )
 
 type TokenHandler struct {

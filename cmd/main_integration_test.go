@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
-	"oauth-tutorial/internal/logger"
+	"oauth-tutorial/pkg/logger"
 	authorize "oauth-tutorial/internal/presentation/authorization"
 	"oauth-tutorial/internal/session"
 	usecase "oauth-tutorial/internal/usecase/authorization"

@@ -2,7 +2,7 @@ package infrastructure
 
 import (
 	"oauth-tutorial/internal/domain"
-	"oauth-tutorial/internal/logger"
+	"oauth-tutorial/pkg/logger"
 	"oauth-tutorial/internal/session"
 	"testing"
 )

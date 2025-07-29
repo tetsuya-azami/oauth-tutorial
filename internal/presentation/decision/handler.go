@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
-	"oauth-tutorial/internal/logger"
+	"oauth-tutorial/pkg/logger"
 	"oauth-tutorial/internal/presentation"
 	"oauth-tutorial/internal/session"
 	"oauth-tutorial/internal/usecase/decision"

@@ -2,7 +2,7 @@ package domain
 
 import (
 	"errors"
-	"oauth-tutorial/internal/logger"
+	"oauth-tutorial/pkg/logger"
 	"strings"
 )
 
