@@ -1,21 +1,21 @@
-package usecase
+package authorize
 
 import (
 	"errors"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
-	"oauth-tutorial/pkg/logger"
 	"oauth-tutorial/internal/session"
+	"oauth-tutorial/pkg/mylogger"
 )
 
 type AuthorizationCodeFlow struct {
-	logger             logger.MyLogger
+	logger             mylogger.Logger
 	clientRepository   IClientRepository
 	sessionStore       ISessionStorage
 	sessionIDGenerator ISessionIDGenerator
 }
 
-func NewAuthorizationCodeFlow(logger logger.MyLogger, cr IClientRepository, sessionIDGenerator ISessionIDGenerator, sessionStorage ISessionStorage) *AuthorizationCodeFlow {
+func NewAuthorizationCodeFlow(logger mylogger.Logger, cr IClientRepository, sessionIDGenerator ISessionIDGenerator, sessionStorage ISessionStorage) *AuthorizationCodeFlow {
 	return &AuthorizationCodeFlow{
 		logger:             logger,
 		clientRepository:   cr,

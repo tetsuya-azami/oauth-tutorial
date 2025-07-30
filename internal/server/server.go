@@ -4,23 +4,23 @@ import (
 	"log"
 	"net/http"
 	"oauth-tutorial/internal/infrastructure"
-	"oauth-tutorial/pkg/logger"
-	"oauth-tutorial/internal/mycrypto"
-	authorize "oauth-tutorial/internal/presentation/authorization"
-	"oauth-tutorial/internal/presentation/decision"
-	tokenhandler "oauth-tutorial/internal/presentation/token"
+	pAuthorize "oauth-tutorial/internal/presentation/authorization"
+	pDecision "oauth-tutorial/internal/presentation/decision"
+	pToken "oauth-tutorial/internal/presentation/token"
 	"oauth-tutorial/internal/session"
-	usecase "oauth-tutorial/internal/usecase/authorization"
-	u_decision "oauth-tutorial/internal/usecase/decision"
+	uAuthorize "oauth-tutorial/internal/usecase/authorize"
+	uDecision "oauth-tutorial/internal/usecase/decision"
+	"oauth-tutorial/pkg/mycrypto"
+	"oauth-tutorial/pkg/mylogger"
 )
 
 type Server struct {
-	logger logger.MyLogger
+	logger mylogger.Logger
 }
 
 func NewServer() *Server {
 	return &Server{
-		logger: logger.NewMyLogger(),
+		logger: mylogger.NewLogger(),
 	}
 }
 
@@ -31,18 +31,18 @@ func (s *Server) Start() {
 	cr := infrastructure.NewClientRepository()
 	sig := session.NewSessionIDGenerator()
 	ss := infrastructure.NewSessionStorage()
-	acf := usecase.NewAuthorizationCodeFlow(s.logger, cr, sig, ss)
+	acf := uAuthorize.NewAuthorizationCodeFlow(s.logger, cr, sig, ss)
 
 	rg := &mycrypto.RandomGenerator{}
 	ur := infrastructure.NewUserRepository()
 	ar := infrastructure.NewAuthCodeRepository()
 	// 認可コード発行ユースケース
-	pac := u_decision.NewPublishAuthorizationCodeUseCase(s.logger, rg, ss, ur, ar)
+	pac := uDecision.NewPublishAuthorizationCodeUseCase(s.logger, rg, ss, ur, ar)
 
 	// Set up HTTP handlers
-	http.Handle("/authorize", authorize.NewAuthorizeHandler(s.logger, acf))
-	http.Handle("/token", tokenhandler.NewTokenHandler(s.logger))
-	http.Handle("/decision", decision.NewDecisionHandler(s.logger, pac))
+	http.Handle("/authorize", pAuthorize.NewAuthorizeHandler(s.logger, acf))
+	http.Handle("/decision", pDecision.NewDecisionHandler(s.logger, pac))
+	http.Handle("/token", pToken.NewTokenHandler(s.logger))
 
 	// Start the HTTP server
 	s.logger.Info("Listening on :8080")

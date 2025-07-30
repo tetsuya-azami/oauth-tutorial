@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"oauth-tutorial/internal/mycrypto"
+	"oauth-tutorial/pkg/mycrypto"
 	"time"
 )
 

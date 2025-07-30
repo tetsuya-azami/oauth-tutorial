@@ -2,14 +2,14 @@ package tokenhandler
 
 import (
 	"net/http"
-	"oauth-tutorial/pkg/logger"
+	"oauth-tutorial/pkg/mylogger"
 )
 
 type TokenHandler struct {
-	logger logger.MyLogger
+	logger mylogger.Logger
 }
 
-func NewTokenHandler(logger logger.MyLogger) *TokenHandler {
+func NewTokenHandler(logger mylogger.Logger) *TokenHandler {
 	return &TokenHandler{logger: logger}
 }
 

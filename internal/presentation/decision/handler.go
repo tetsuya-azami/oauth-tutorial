@@ -4,19 +4,19 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
-	"oauth-tutorial/pkg/logger"
 	"oauth-tutorial/internal/presentation"
 	"oauth-tutorial/internal/session"
 	"oauth-tutorial/internal/usecase/decision"
+	"oauth-tutorial/pkg/mylogger"
 	"strconv"
 )
 
 type DecisionHandler struct {
-	logger                   logger.MyLogger
+	logger                   mylogger.Logger
 	publishAuthorizationCode IPublishAuthorizationCodeUseCase
 }
 
-func NewDecisionHandler(logger logger.MyLogger, publishAuthorizationCode IPublishAuthorizationCodeUseCase) *DecisionHandler {
+func NewDecisionHandler(logger mylogger.Logger, publishAuthorizationCode IPublishAuthorizationCodeUseCase) *DecisionHandler {
 	return &DecisionHandler{logger: logger, publishAuthorizationCode: publishAuthorizationCode}
 }
 

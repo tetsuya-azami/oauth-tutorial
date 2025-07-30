@@ -1,4 +1,4 @@
-package usecase
+package authorize
 
 import (
 	"oauth-tutorial/internal/domain"

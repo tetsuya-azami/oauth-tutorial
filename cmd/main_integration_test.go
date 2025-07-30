@@ -7,10 +7,10 @@ import (
 	"net/http/httptest"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
-	"oauth-tutorial/pkg/logger"
-	authorize "oauth-tutorial/internal/presentation/authorization"
+	pAuthorize "oauth-tutorial/internal/presentation/authorization"
 	"oauth-tutorial/internal/session"
-	usecase "oauth-tutorial/internal/usecase/authorization"
+	uAuthorize "oauth-tutorial/internal/usecase/authorize"
+	"oauth-tutorial/pkg/mylogger"
 	"testing"
 	"time"
 )
@@ -27,14 +27,14 @@ func (m *MockSessionIDGenerator) Generate() session.SessionID {
 
 func Test_認可リクエスト統合テスト(t *testing.T) {
 	// given
-	logger := logger.NewMyLogger()
+	logger := mylogger.NewLogger()
 	cr := infrastructure.NewClientRepository()
 	sig := &MockSessionIDGenerator{}
 	ss := infrastructure.NewSessionStorage()
-	acf := usecase.NewAuthorizationCodeFlow(logger, cr, sig, ss)
+	acf := uAuthorize.NewAuthorizationCodeFlow(logger, cr, sig, ss)
 
 	mux := http.NewServeMux()
-	mux.Handle("/authorize", authorize.NewAuthorizeHandler(logger, acf))
+	mux.Handle("/authorize", pAuthorize.NewAuthorizeHandler(logger, acf))
 
 	server := httptest.NewServer(mux)
 	defer server.Close()

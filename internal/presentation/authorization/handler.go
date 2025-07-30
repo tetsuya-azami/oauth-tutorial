@@ -4,19 +4,19 @@ import (
 	"errors"
 	"net/http"
 	"oauth-tutorial/internal/domain"
-	"oauth-tutorial/pkg/logger"
 	"oauth-tutorial/internal/presentation"
 	"oauth-tutorial/internal/session"
-	usecase "oauth-tutorial/internal/usecase/authorization"
+	usecase "oauth-tutorial/internal/usecase/authorize"
+	"oauth-tutorial/pkg/mylogger"
 )
 
 type AuthorizeHandler struct {
-	logger logger.MyLogger
+	logger mylogger.Logger
 	// TODO: response_typeによってflowを変える。(認可コードフロー以外にも対応)(factory patternを検討)
 	authorizationFlow IAuthorizationFlow
 }
 
-func NewAuthorizeHandler(logger logger.MyLogger, clientGetter IAuthorizationFlow) *AuthorizeHandler {
+func NewAuthorizeHandler(logger mylogger.Logger, clientGetter IAuthorizationFlow) *AuthorizeHandler {
 	return &AuthorizeHandler{logger: logger, authorizationFlow: clientGetter}
 }
 

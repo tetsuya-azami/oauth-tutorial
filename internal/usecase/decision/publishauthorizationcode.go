@@ -4,7 +4,7 @@ import (
 	"errors"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
-	"oauth-tutorial/pkg/logger"
+	"oauth-tutorial/pkg/mylogger"
 	"time"
 )
 
@@ -16,14 +16,14 @@ var (
 )
 
 type PublishAuthorizationCodeUseCase struct {
-	logger              logger.MyLogger
+	logger              mylogger.Logger
 	randomCodeGenerator IRandomCodeGenerator
 	sessionStore        ISessionStorage
 	userRepository      IUserRepository
 	authCodeRepository  IAuthorizationCodeRepository
 }
 
-func NewPublishAuthorizationCodeUseCase(logger logger.MyLogger, randomCodeGenerator IRandomCodeGenerator, sessionStore ISessionStorage, userRepository IUserRepository, authCodeRepository IAuthorizationCodeRepository) *PublishAuthorizationCodeUseCase {
+func NewPublishAuthorizationCodeUseCase(logger mylogger.Logger, randomCodeGenerator IRandomCodeGenerator, sessionStore ISessionStorage, userRepository IUserRepository, authCodeRepository IAuthorizationCodeRepository) *PublishAuthorizationCodeUseCase {
 	return &PublishAuthorizationCodeUseCase{
 		logger:              logger,
 		randomCodeGenerator: randomCodeGenerator,

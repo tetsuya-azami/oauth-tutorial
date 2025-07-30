@@ -2,7 +2,7 @@ package infrastructure
 
 import (
 	"oauth-tutorial/internal/domain"
-	"oauth-tutorial/internal/mycrypto"
+	"oauth-tutorial/pkg/mycrypto"
 	"sort"
 	"sync"
 	"testing"

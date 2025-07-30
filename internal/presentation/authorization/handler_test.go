@@ -9,7 +9,7 @@ import (
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/session"
 	"oauth-tutorial/internal/test"
-	usecase "oauth-tutorial/internal/usecase/authorization"
+	usecase "oauth-tutorial/internal/usecase/authorize"
 	"testing"
 )
 

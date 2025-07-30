@@ -2,7 +2,7 @@ package domain
 
 import (
 	"errors"
-	"oauth-tutorial/pkg/logger"
+	"oauth-tutorial/pkg/mylogger"
 	"strings"
 )
 
@@ -14,7 +14,7 @@ type AuthorizationCodeFlowParam struct {
 	state        string
 }
 
-func NewAuthorizationCodeFlowParam(logger logger.MyLogger, responseType string, clientID string, redirectURI string, scope string, state string) (*AuthorizationCodeFlowParam, error) {
+func NewAuthorizationCodeFlowParam(logger mylogger.Logger, responseType string, clientID string, redirectURI string, scope string, state string) (*AuthorizationCodeFlowParam, error) {
 	// 認可フローによって処理が異なるケースを想定。現状、認可コードフローのみサポートのため、取得した値を使用してはいない
 	rt, err := GetResponseType(responseType)
 	if err != nil {

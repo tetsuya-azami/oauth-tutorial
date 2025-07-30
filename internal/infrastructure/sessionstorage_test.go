@@ -2,13 +2,13 @@ package infrastructure
 
 import (
 	"oauth-tutorial/internal/domain"
-	"oauth-tutorial/pkg/logger"
 	"oauth-tutorial/internal/session"
+	"oauth-tutorial/pkg/mylogger"
 	"testing"
 )
 
 func Test_認可リクエストパラメータの保存(t *testing.T) {
-	logger := logger.NewMyLogger()
+	logger := mylogger.NewLogger()
 
 	// テスト用のAuthorizationCodeFlowParamを作成
 	validParam, err := domain.NewAuthorizationCodeFlowParam(
@@ -132,7 +132,7 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 
 func Test_認可リクエストパラメータの取得(t *testing.T) {
 	ss := NewSessionStorage()
-	logger := logger.NewMyLogger()
+	logger := mylogger.NewLogger()
 
 	// sessionStoreを初期化（他のテストの影響を避けるため）
 	sessionStore = make(map[session.SessionID]SessionData)
@@ -224,7 +224,7 @@ func Test_認可リクエストパラメータの取得(t *testing.T) {
 }
 
 func Test_認可リクエストパラメータの削除(t *testing.T) {
-	logger := logger.NewMyLogger()
+	logger := mylogger.NewLogger()
 
 	tests := []struct {
 		name      string
@@ -283,7 +283,7 @@ func Test_認可リクエストパラメータの削除(t *testing.T) {
 
 func TestAuthParamSession_MultipleSession(t *testing.T) {
 	ss := NewSessionStorage()
-	logger := logger.NewMyLogger()
+	logger := mylogger.NewLogger()
 
 	// sessionStoreを初期化
 	sessionStore = make(map[session.SessionID]SessionData)
