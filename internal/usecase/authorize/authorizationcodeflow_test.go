@@ -4,8 +4,8 @@ import (
 	"errors"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
+	"oauth-tutorial/pkg/mylogger"
 	"oauth-tutorial/internal/session"
-	"oauth-tutorial/internal/test"
 	"testing"
 )
 
@@ -67,7 +67,7 @@ func Test_認可コードフローユースケース(t *testing.T) {
 		[]string{"https://example.com/callback", "https://app.example.com/auth"},
 	)
 
-	logger := test.NewMockLogger()
+	logger := mylogger.NewMockLogger()
 	validParam, err := domain.NewAuthorizationCodeFlowParam(
 		logger,
 		"code",

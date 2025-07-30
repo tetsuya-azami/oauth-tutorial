@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/session"
-	"oauth-tutorial/internal/test"
 	usecase "oauth-tutorial/internal/usecase/authorize"
+	"oauth-tutorial/pkg/mylogger"
 	"testing"
 )
 
@@ -156,7 +156,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			logger := test.NewMockLogger()
+			logger := mylogger.NewMockLogger()
 			flow := NewMockAuthorizationFlow(tt.mockErr)
 			handler := NewAuthorizeHandler(logger, flow)
 

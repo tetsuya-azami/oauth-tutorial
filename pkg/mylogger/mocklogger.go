@@ -1,4 +1,4 @@
-package test
+package mylogger
 
 type MockLogger struct {
 }
