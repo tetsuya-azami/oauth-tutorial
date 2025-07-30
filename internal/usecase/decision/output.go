@@ -1,20 +1,20 @@
 package decision
 
-type PublishAuthorizationCodeResult struct {
+type PublishAuthorizationCodeOutput struct {
 	baseRedirectUri   string
 	authorizationCode string
 	state             string
 }
 
-func (r *PublishAuthorizationCodeResult) BaseRedirectUri() string {
+func (r *PublishAuthorizationCodeOutput) BaseRedirectUri() string {
 	return r.baseRedirectUri
 }
 
-func (r *PublishAuthorizationCodeResult) AuthorizationCode() string {
+func (r *PublishAuthorizationCodeOutput) AuthorizationCode() string {
 	return r.authorizationCode
 }
 
-func (r *PublishAuthorizationCodeResult) State() string {
+func (r *PublishAuthorizationCodeOutput) State() string {
 	return r.state
 }
 

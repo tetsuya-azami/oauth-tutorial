@@ -5,7 +5,7 @@ import (
 	"oauth-tutorial/internal/session"
 )
 
-type PublishAuthorizationCodeParam struct {
+type PublishAuthorizationCodeInput struct {
 	sessionId session.SessionID
 	loginID   string
 	password  string
@@ -18,7 +18,7 @@ var (
 	ErrEmptyPassword  = errors.New("password cannot be empty")
 )
 
-func NewPublishAuthorizationCodeParam(sessionId session.SessionID, loginID, password string, approved bool) (*PublishAuthorizationCodeParam, error) {
+func NewPublishAuthorizationCodeInput(sessionId session.SessionID, loginID, password string, approved bool) (*PublishAuthorizationCodeInput, error) {
 	if sessionId == "" {
 		return nil, ErrEmptySessionID
 	}
@@ -29,9 +29,9 @@ func NewPublishAuthorizationCodeParam(sessionId session.SessionID, loginID, pass
 		return nil, ErrEmptyPassword
 	}
 
-	return &PublishAuthorizationCodeParam{sessionId: sessionId, approved: approved}, nil
+	return &PublishAuthorizationCodeInput{sessionId: sessionId, approved: approved}, nil
 }
 
-func (p *PublishAuthorizationCodeParam) Approved() bool {
+func (p *PublishAuthorizationCodeInput) Approved() bool {
 	return p.approved
 }

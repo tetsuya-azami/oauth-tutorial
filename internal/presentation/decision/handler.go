@@ -46,7 +46,7 @@ func (h *DecisionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, redirectUri, http.StatusSeeOther)
 }
 
-func (h *DecisionHandler) createParam(queryParams url.Values, w http.ResponseWriter, r *http.Request) (*decision.PublishAuthorizationCodeParam, error) {
+func (h *DecisionHandler) createParam(queryParams url.Values, w http.ResponseWriter, r *http.Request) (*decision.PublishAuthorizationCodeInput, error) {
 	approved, err := strconv.ParseBool(queryParams.Get("approved"))
 	if err != nil {
 		h.logger.Info("Invalid 'approved' parameter: %v", err)
@@ -58,7 +58,7 @@ func (h *DecisionHandler) createParam(queryParams url.Values, w http.ResponseWri
 		return nil, errors.New("セッションが見つかりません。もう一度初めからやり直してください")
 	}
 
-	param, err := decision.NewPublishAuthorizationCodeParam(session.SessionID(sessionID.Value), queryParams.Get("login_id"), queryParams.Get("password"), approved)
+	param, err := decision.NewPublishAuthorizationCodeInput(session.SessionID(sessionID.Value), queryParams.Get("login_id"), queryParams.Get("password"), approved)
 	if err != nil {
 		h.logger.Info("Failed to create PublishAuthorizationCodeParam: %v", err)
 		return nil, errors.New("無効なリクエストです。もう一度初めからやり直してください")

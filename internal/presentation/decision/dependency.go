@@ -5,5 +5,5 @@ import (
 )
 
 type IPublishAuthorizationCodeUseCase interface {
-	Execute(param *decision.PublishAuthorizationCodeParam) (decision.PublishAuthorizationCodeResult, *decision.ErrPublishAuthorizationCode)
+	Execute(param *decision.PublishAuthorizationCodeInput) (decision.PublishAuthorizationCodeOutput, *decision.ErrPublishAuthorizationCode)
 }

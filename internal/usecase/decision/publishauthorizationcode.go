@@ -33,25 +33,25 @@ func NewPublishAuthorizationCodeUseCase(logger mylogger.Logger, randomCodeGenera
 	}
 }
 
-func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCodeParam) (PublishAuthorizationCodeResult, *ErrPublishAuthorizationCode) {
+func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCodeInput) (PublishAuthorizationCodeOutput, *ErrPublishAuthorizationCode) {
 	session, err := uc.sessionStore.Get(param.sessionId)
 	switch {
 	case errors.Is(err, infrastructure.ErrSessionNotFound):
 		uc.logger.Info("Session not found", err)
-		return PublishAuthorizationCodeResult{}, &ErrPublishAuthorizationCode{
+		return PublishAuthorizationCodeOutput{}, &ErrPublishAuthorizationCode{
 			err:             ErrSessionNotFound,
 			baseRedirectUri: "",
 		}
 	case err != nil:
 		uc.logger.Error("Unexpected error occurred", err)
-		return PublishAuthorizationCodeResult{}, &ErrPublishAuthorizationCode{
+		return PublishAuthorizationCodeOutput{}, &ErrPublishAuthorizationCode{
 			err:             ErrUnexpectedError,
 			baseRedirectUri: "",
 		}
 	}
 	if session == nil {
 		uc.logger.Info("Session is nil")
-		return PublishAuthorizationCodeResult{}, &ErrPublishAuthorizationCode{
+		return PublishAuthorizationCodeOutput{}, &ErrPublishAuthorizationCode{
 			err:             ErrSessionNotFound,
 			baseRedirectUri: "",
 		}
@@ -59,7 +59,7 @@ func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCo
 
 	if !param.approved {
 		uc.logger.Info("Authorization denied by user")
-		return PublishAuthorizationCodeResult{}, &ErrPublishAuthorizationCode{
+		return PublishAuthorizationCodeOutput{}, &ErrPublishAuthorizationCode{
 			err:             ErrAuthorizationDenied,
 			baseRedirectUri: session.AuthParam().RedirectURI(),
 		}
@@ -68,14 +68,14 @@ func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCo
 	user, err := uc.userRepository.SelectByLoginIDAndPassword(param.loginID, param.password)
 	if err != nil {
 		uc.logger.Info("Failed to select user by loginID and password", err)
-		return PublishAuthorizationCodeResult{}, &ErrPublishAuthorizationCode{
+		return PublishAuthorizationCodeOutput{}, &ErrPublishAuthorizationCode{
 			err:             ErrInvalidLoginCredentials,
 			baseRedirectUri: session.AuthParam().RedirectURI(),
 		}
 	}
 	if user == nil {
 		uc.logger.Info("User not found for loginID: %s", param.loginID)
-		return PublishAuthorizationCodeResult{}, &ErrPublishAuthorizationCode{
+		return PublishAuthorizationCodeOutput{}, &ErrPublishAuthorizationCode{
 			err:             ErrInvalidLoginCredentials,
 			baseRedirectUri: session.AuthParam().RedirectURI(),
 		}
@@ -85,7 +85,7 @@ func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCo
 
 	uc.authCodeRepository.Save(authorizationCode)
 
-	return PublishAuthorizationCodeResult{
+	return PublishAuthorizationCodeOutput{
 		baseRedirectUri:   session.AuthParam().RedirectURI(),
 		authorizationCode: authorizationCode.Value(),
 		state:             session.AuthParam().State(),
