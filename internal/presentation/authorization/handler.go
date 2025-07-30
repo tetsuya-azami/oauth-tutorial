@@ -6,7 +6,7 @@ import (
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/presentation"
 	"oauth-tutorial/internal/session"
-	usecase "oauth-tutorial/internal/usecase/authorize"
+	uAuthorize "oauth-tutorial/internal/usecase/authorize"
 	"oauth-tutorial/pkg/mylogger"
 )
 
@@ -39,16 +39,16 @@ func (h *AuthorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	sessionID, err := h.authorizationFlow.Execute(param)
 	if err != nil {
 		switch {
-		case errors.Is(err, usecase.ErrClientNotFound):
+		case errors.Is(err, uAuthorize.ErrClientNotFound):
 			h.logger.Info("Client not found", "clientID", clientID)
 			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
-		case errors.Is(err, usecase.ErrInvalidRedirectURI):
+		case errors.Is(err, uAuthorize.ErrInvalidRedirectURI):
 			h.logger.Info("Invalid redirect URI", "redirectURI", redirectURI)
 			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
-		case errors.Is(err, usecase.ErrUnExpected):
+		case errors.Is(err, uAuthorize.ErrUnExpected):
 			h.logger.Error("Unexpected error occurred", "error", err)
 			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
-		case errors.Is(err, usecase.ErrServer):
+		case errors.Is(err, uAuthorize.ErrServer):
 			h.logger.Error("Server error occurred", "error", err)
 			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
 		default:
