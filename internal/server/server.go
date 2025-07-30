@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"oauth-tutorial/internal/infrastructure"
-	pAuthorize "oauth-tutorial/internal/presentation/authorization"
+	pAuthorize "oauth-tutorial/internal/presentation/authorize"
 	pDecision "oauth-tutorial/internal/presentation/decision"
 	pToken "oauth-tutorial/internal/presentation/token"
 	"oauth-tutorial/internal/session"

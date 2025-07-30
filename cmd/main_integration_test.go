@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
-	pAuthorize "oauth-tutorial/internal/presentation/authorization"
+	pAuthorize "oauth-tutorial/internal/presentation/authorize"
 	"oauth-tutorial/internal/session"
 	uAuthorize "oauth-tutorial/internal/usecase/authorize"
 	"oauth-tutorial/pkg/mylogger"
