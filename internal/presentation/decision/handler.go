@@ -21,9 +21,14 @@ func NewDecisionHandler(logger mylogger.Logger, publishAuthorizationCode IPublis
 }
 
 func (h *DecisionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	queryParams := r.URL.Query()
+	err := r.ParseForm()
+	if err != nil {
+		h.logger.Info("Failed to parse form: %v", err)
+		presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: "パラメータの形式を確認してください"})
+		return
+	}
 
-	param, err := h.createParam(queryParams, w, r)
+	param, err := h.createParam(r.Form, w, r)
 	if err != nil {
 		presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		return
@@ -46,8 +51,8 @@ func (h *DecisionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, redirectUri, http.StatusSeeOther)
 }
 
-func (h *DecisionHandler) createParam(queryParams url.Values, w http.ResponseWriter, r *http.Request) (*decision.PublishAuthorizationCodeInput, error) {
-	approved, err := strconv.ParseBool(queryParams.Get("approved"))
+func (h *DecisionHandler) createParam(formValues url.Values, w http.ResponseWriter, r *http.Request) (*decision.PublishAuthorizationCodeInput, error) {
+	approved, err := strconv.ParseBool(formValues.Get("approved"))
 	if err != nil {
 		h.logger.Info("Invalid 'approved' parameter: %v", err)
 		return nil, errors.New("無効なリクエストです。もう一度初めからやり直してください")
@@ -58,7 +63,7 @@ func (h *DecisionHandler) createParam(queryParams url.Values, w http.ResponseWri
 		return nil, errors.New("セッションが見つかりません。もう一度初めからやり直してください")
 	}
 
-	param, err := decision.NewPublishAuthorizationCodeInput(session.SessionID(sessionID.Value), queryParams.Get("login_id"), queryParams.Get("password"), approved)
+	param, err := decision.NewPublishAuthorizationCodeInput(session.SessionID(sessionID.Value), formValues.Get("login_id"), formValues.Get("password"), approved)
 	if err != nil {
 		h.logger.Info("Failed to create PublishAuthorizationCodeParam: %v", err)
 		return nil, errors.New("無効なリクエストです。もう一度初めからやり直してください")
