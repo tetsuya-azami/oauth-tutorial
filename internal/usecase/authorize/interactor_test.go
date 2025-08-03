@@ -4,6 +4,7 @@ import (
 	"errors"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
+	inf_dto "oauth-tutorial/internal/infrastructure/dto"
 	"oauth-tutorial/internal/session"
 	"oauth-tutorial/pkg/mylogger"
 	"testing"
@@ -52,7 +53,7 @@ func NewMockSessionStorage(err error) *MockSessionStorage {
 	}
 }
 
-func (m *MockSessionStorage) Save(sessionID session.SessionID, sessiondata *infrastructure.SessionData) error {
+func (m *MockSessionStorage) Save(sessionID session.SessionID, sessiondata *inf_dto.SessionData) error {
 	if m.err != nil {
 		return m.err
 	}

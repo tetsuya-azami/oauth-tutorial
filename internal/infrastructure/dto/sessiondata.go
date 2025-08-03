@@ -1,4 +1,4 @@
-package infrastructure
+package dto
 
 import "oauth-tutorial/internal/domain"
 

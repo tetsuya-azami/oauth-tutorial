@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"oauth-tutorial/internal/domain"
+	"oauth-tutorial/internal/infrastructure/dto"
 	"oauth-tutorial/internal/session"
 	"oauth-tutorial/pkg/mylogger"
 	"testing"
@@ -26,7 +27,7 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 	tests := []struct {
 		name        string
 		sessionID   session.SessionID
-		sessiondata *SessionData
+		sessiondata *dto.SessionData
 		expectedErr error
 		setupFunc   func(*SessionStorage)
 		checkFunc   func(*testing.T, *SessionStorage, session.SessionID)
@@ -34,10 +35,10 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 		{
 			name:        "正常ケース - 新しいセッションの保存",
 			sessionID:   session.SessionID("test-session-id"),
-			sessiondata: NewSessionData(validParam, nil),
+			sessiondata: dto.NewSessionData(validParam, nil),
 			expectedErr: nil,
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]SessionData)
+				sessionStore = make(map[session.SessionID]dto.SessionData)
 			},
 			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
 				// 正しいキーで保存されていること
@@ -52,10 +53,10 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 		{
 			name:        "正常ケース - 既存セッションの上書き",
 			sessionID:   "existing-session",
-			sessiondata: NewSessionData(validParam, nil),
+			sessiondata: dto.NewSessionData(validParam, nil),
 			expectedErr: nil,
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]SessionData)
+				sessionStore = make(map[session.SessionID]dto.SessionData)
 				oldParam, _ := domain.NewAuthorizationCodeFlowParam(
 					logger,
 					"code",
@@ -64,7 +65,7 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 					"read",
 					"old-state",
 				)
-				sessionStore[session.SessionID("existing-session")] = *NewSessionData(oldParam, nil)
+				sessionStore[session.SessionID("existing-session")] = *dto.NewSessionData(oldParam, nil)
 			},
 			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
 				// 上書きされていること
@@ -73,18 +74,18 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 				}
 				// 新しい値で上書きされていること
 				saved := sessionStore[sessionID]
-				if saved.authParam.ClientID() != validParam.ClientID() {
-					t.Errorf("saved ClientID = %s, want %s", saved.authParam.ClientID(), validParam.ClientID())
+				if saved.AuthParam().ClientID() != validParam.ClientID() {
+					t.Errorf("saved ClientID = %s, want %s", saved.AuthParam().ClientID(), validParam.ClientID())
 				}
 			},
 		},
 		{
 			name:        "異常ケース - 空のセッションID",
 			sessionID:   session.SessionID(""),
-			sessiondata: NewSessionData(validParam, nil),
+			sessiondata: dto.NewSessionData(validParam, nil),
 			expectedErr: ErrInvalidSessionID,
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]SessionData)
+				sessionStore = make(map[session.SessionID]dto.SessionData)
 			},
 			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
 				if _, exists := sessionStore[sessionID]; exists {
@@ -101,7 +102,7 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 			sessiondata: nil,
 			expectedErr: ErrInvalidSessionData,
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]SessionData)
+				sessionStore = make(map[session.SessionID]dto.SessionData)
 			},
 			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
 				if _, exists := sessionStore[sessionID]; exists {
@@ -152,7 +153,7 @@ func Test_認可リクエストパラメータの取得(t *testing.T) {
 	logger := mylogger.NewLogger()
 
 	// sessionStoreを初期化（他のテストの影響を避けるため）
-	sessionStore = make(map[session.SessionID]SessionData)
+	sessionStore = make(map[session.SessionID]dto.SessionData)
 
 	// テスト用のAuthorizationCodeFlowParamを作成・保存
 	param, err := domain.NewAuthorizationCodeFlowParam(
@@ -168,7 +169,7 @@ func Test_認可リクエストパラメータの取得(t *testing.T) {
 	}
 
 	sessionID := session.SessionID("test-session-id")
-	err = ss.Save(sessionID, NewSessionData(param, nil))
+	err = ss.Save(sessionID, dto.NewSessionData(param, nil))
 	if err != nil {
 		t.Fatalf("Save() error = %v", err)
 	}
@@ -226,14 +227,14 @@ func Test_認可リクエストパラメータの取得(t *testing.T) {
 					return
 				}
 				// 値が正しく取得できることを確認
-				if result.authParam.ClientID() != param.ClientID() {
-					t.Errorf("Get() result.ClientID() = %v, want %v", result.authParam.ClientID(), param.ClientID())
+				if result.AuthParam().ClientID() != param.ClientID() {
+					t.Errorf("Get() result.ClientID() = %v, want %v", result.AuthParam().ClientID(), param.ClientID())
 				}
-				if result.authParam.RedirectURI() != param.RedirectURI() {
-					t.Errorf("Get() result.RedirectURI() = %v, want %v", result.authParam.RedirectURI(), param.RedirectURI())
+				if result.AuthParam().RedirectURI() != param.RedirectURI() {
+					t.Errorf("Get() result.RedirectURI() = %v, want %v", result.AuthParam().RedirectURI(), param.RedirectURI())
 				}
-				if result.authParam.State() != param.State() {
-					t.Errorf("Get() result.State() = %v, want %v", result.authParam.State(), param.State())
+				if result.AuthParam().State() != param.State() {
+					t.Errorf("Get() result.State() = %v, want %v", result.AuthParam().State(), param.State())
 				}
 			}
 		})
@@ -251,7 +252,7 @@ func Test_認可リクエストパラメータの削除(t *testing.T) {
 		{
 			name: "正常系 - 既存セッションの削除",
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]SessionData)
+				sessionStore = make(map[session.SessionID]dto.SessionData)
 				param, err := domain.NewAuthorizationCodeFlowParam(
 					logger,
 					"code",
@@ -263,21 +264,21 @@ func Test_認可リクエストパラメータの削除(t *testing.T) {
 				if err != nil {
 					t.Fatalf("Failed to create AuthorizationCodeFlowParam: %v", err)
 				}
-				sessionStore[session.SessionID("test-session-id")] = *NewSessionData(param, nil)
+				sessionStore[session.SessionID("test-session-id")] = *dto.NewSessionData(param, nil)
 			},
 			sessionID: session.SessionID("test-session-id"),
 		},
 		{
 			name: "異常系 - 存在しないセッションの削除",
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]SessionData)
+				sessionStore = make(map[session.SessionID]dto.SessionData)
 			},
 			sessionID: session.SessionID("non-existing-session"),
 		},
 		{
 			name: "異常系 - 空のセッションIDの削除",
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]SessionData)
+				sessionStore = make(map[session.SessionID]dto.SessionData)
 			},
 			sessionID: session.SessionID(""),
 		},
@@ -311,7 +312,7 @@ func Test_セッションの削除(t *testing.T) {
 		{
 			name: "正常系 - 既存セッションの削除",
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]SessionData)
+				sessionStore = make(map[session.SessionID]dto.SessionData)
 				param, _ := domain.NewAuthorizationCodeFlowParam(
 					logger,
 					"code",
@@ -320,7 +321,7 @@ func Test_セッションの削除(t *testing.T) {
 					"read write",
 					"test-state",
 				)
-				sessionStore[session.SessionID("delete-session-id")] = *NewSessionData(param, nil)
+				sessionStore[session.SessionID("delete-session-id")] = *dto.NewSessionData(param, nil)
 			},
 			sessionID:   session.SessionID("delete-session-id"),
 			expectExist: false,
@@ -329,7 +330,7 @@ func Test_セッションの削除(t *testing.T) {
 		{
 			name: "異常系 - 存在しないセッションの削除",
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]SessionData)
+				sessionStore = make(map[session.SessionID]dto.SessionData)
 			},
 			sessionID:   session.SessionID("not-exist-session"),
 			expectExist: false,
@@ -338,7 +339,7 @@ func Test_セッションの削除(t *testing.T) {
 		{
 			name: "異常系 - 空のセッションIDの削除",
 			setupFunc: func(ss *SessionStorage) {
-				sessionStore = make(map[session.SessionID]SessionData)
+				sessionStore = make(map[session.SessionID]dto.SessionData)
 			},
 			sessionID:   session.SessionID(""),
 			expectExist: false,

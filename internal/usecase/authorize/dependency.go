@@ -2,7 +2,7 @@ package authorize
 
 import (
 	"oauth-tutorial/internal/domain"
-	"oauth-tutorial/internal/infrastructure"
+	inf_dto "oauth-tutorial/internal/infrastructure/dto"
 	"oauth-tutorial/internal/session"
 )
 
@@ -11,7 +11,7 @@ type IClientRepository interface {
 }
 
 type ISessionStorage interface {
-	Save(sessionID session.SessionID, sessionData *infrastructure.SessionData) error
+	Save(sessionID session.SessionID, sessionData *inf_dto.SessionData) error
 }
 
 type ISessionIDGenerator interface {

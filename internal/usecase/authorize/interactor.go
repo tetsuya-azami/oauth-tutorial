@@ -4,6 +4,7 @@ import (
 	"errors"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
+	inf_dto "oauth-tutorial/internal/infrastructure/dto"
 	"oauth-tutorial/internal/session"
 	"oauth-tutorial/pkg/mylogger"
 )
@@ -52,7 +53,7 @@ func (c *AuthorizationCodeFlow) Execute(param *domain.AuthorizationCodeFlowParam
 
 	sessionID := c.sessionIDGenerator.Generate()
 
-	err = c.sessionStore.Save(sessionID, infrastructure.NewSessionData(param, nil))
+	err = c.sessionStore.Save(sessionID, inf_dto.NewSessionData(param, nil))
 	if err != nil {
 		switch {
 		case errors.Is(err, infrastructure.ErrInvalidSessionID) || errors.Is(err, infrastructure.ErrInvalidSessionData):

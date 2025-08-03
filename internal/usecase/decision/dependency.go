@@ -2,7 +2,7 @@ package decision
 
 import (
 	"oauth-tutorial/internal/domain"
-	"oauth-tutorial/internal/infrastructure"
+	inf_dto "oauth-tutorial/internal/infrastructure/dto"
 	"oauth-tutorial/internal/session"
 )
 
@@ -11,7 +11,7 @@ type IRandomCodeGenerator interface {
 }
 
 type ISessionStorage interface {
-	Get(sessionID session.SessionID) (*infrastructure.SessionData, error)
+	Get(sessionID session.SessionID) (*inf_dto.SessionData, error)
 }
 
 type IUserRepository interface {

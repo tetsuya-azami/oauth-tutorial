@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"errors"
+	"oauth-tutorial/internal/infrastructure/dto"
 	"oauth-tutorial/internal/session"
 )
 
@@ -12,13 +13,13 @@ func NewSessionStorage() *SessionStorage {
 }
 
 var (
-	sessionStore          = map[session.SessionID]SessionData{}
+	sessionStore          = map[session.SessionID]dto.SessionData{}
 	ErrInvalidSessionID   = errors.New("sessionID is required")
 	ErrInvalidSessionData = errors.New("invalid session data")
 	ErrSessionNotFound    = errors.New("session not found")
 )
 
-func (s *SessionStorage) Save(sessionID session.SessionID, sessiondata *SessionData) error {
+func (s *SessionStorage) Save(sessionID session.SessionID, sessiondata *dto.SessionData) error {
 	if sessionID == "" {
 		return ErrInvalidSessionID
 	}
@@ -30,7 +31,7 @@ func (s *SessionStorage) Save(sessionID session.SessionID, sessiondata *SessionD
 	return nil
 }
 
-func (s *SessionStorage) Get(sessionID session.SessionID) (*SessionData, error) {
+func (s *SessionStorage) Get(sessionID session.SessionID) (*dto.SessionData, error) {
 	sessionData, ok := sessionStore[sessionID]
 	if !ok {
 		return nil, ErrSessionNotFound
