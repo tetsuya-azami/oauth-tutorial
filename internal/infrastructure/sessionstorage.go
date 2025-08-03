@@ -12,14 +12,18 @@ func NewSessionStorage() *SessionStorage {
 }
 
 var (
-	sessionStore        = map[session.SessionID]SessionData{}
-	ErrInvalidParameter = errors.New("sessionID is required")
-	ErrSessionNotFound  = errors.New("session not found")
+	sessionStore          = map[session.SessionID]SessionData{}
+	ErrInvalidSessionID   = errors.New("sessionID is required")
+	ErrInvalidSessionData = errors.New("invalid session data")
+	ErrSessionNotFound    = errors.New("session not found")
 )
 
 func (s *SessionStorage) Save(sessionID session.SessionID, sessiondata *SessionData) error {
 	if sessionID == "" {
-		return ErrInvalidParameter
+		return ErrInvalidSessionID
+	}
+	if sessiondata == nil {
+		return ErrInvalidSessionData
 	}
 
 	sessionStore[sessionID] = *sessiondata
@@ -32,4 +36,13 @@ func (s *SessionStorage) Get(sessionID session.SessionID) (*SessionData, error) 
 		return nil, ErrSessionNotFound
 	}
 	return &sessionData, nil
+}
+
+func (s *SessionStorage) Delete(sessionID session.SessionID) error {
+	if sessionID == "" {
+		return ErrInvalidSessionID
+	}
+
+	delete(sessionStore, sessionID)
+	return nil
 }

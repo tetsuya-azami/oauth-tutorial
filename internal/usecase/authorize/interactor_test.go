@@ -4,8 +4,8 @@ import (
 	"errors"
 	"oauth-tutorial/internal/domain"
 	"oauth-tutorial/internal/infrastructure"
-	"oauth-tutorial/pkg/mylogger"
 	"oauth-tutorial/internal/session"
+	"oauth-tutorial/pkg/mylogger"
 	"testing"
 )
 
@@ -148,11 +148,23 @@ func Test_認可コードフローユースケース(t *testing.T) {
 			expectedErr: ErrInvalidRedirectURI,
 		},
 		{
-			name:  "異常ケース - セッション保存エラー",
+			name:  "異常ケース - セッション保存エラー(セッションIDが不正)",
 			param: validParam,
 			setupFunc: func() *AuthorizationCodeFlow {
 				clientRepo := NewMockClientRepository(validClient, nil)
-				sessionStore := NewMockSessionStorage(infrastructure.ErrInvalidParameter)
+				sessionStore := NewMockSessionStorage(infrastructure.ErrInvalidSessionID)
+				sig := NewMockSessionIdGenerator("test-session-id")
+				return NewAuthorizationCodeFlow(logger, clientRepo, sig, sessionStore)
+			},
+			wantErr:     true,
+			expectedErr: ErrServer,
+		},
+		{
+			name:  "異常ケース - セッション保存エラー(セッションデータが不正)",
+			param: validParam,
+			setupFunc: func() *AuthorizationCodeFlow {
+				clientRepo := NewMockClientRepository(validClient, nil)
+				sessionStore := NewMockSessionStorage(infrastructure.ErrInvalidSessionData)
 				sig := NewMockSessionIdGenerator("test-session-id")
 				return NewAuthorizationCodeFlow(logger, clientRepo, sig, sessionStore)
 			},

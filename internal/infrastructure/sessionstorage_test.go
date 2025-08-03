@@ -82,7 +82,24 @@ func Test_認可リクエストパラメータの保存(t *testing.T) {
 			name:        "異常ケース - 空のセッションID",
 			sessionID:   session.SessionID(""),
 			sessiondata: NewSessionData(validParam, nil),
-			expectedErr: ErrInvalidParameter,
+			expectedErr: ErrInvalidSessionID,
+			setupFunc: func(ss *SessionStorage) {
+				sessionStore = make(map[session.SessionID]SessionData)
+			},
+			checkFunc: func(t *testing.T, ss *SessionStorage, sessionID session.SessionID) {
+				if _, exists := sessionStore[sessionID]; exists {
+					t.Error("sessionStore should not have entry for empty sessionID")
+				}
+				if len(sessionStore) != 0 {
+					t.Errorf("sessionStore length = %d, want 0", len(sessionStore))
+				}
+			},
+		},
+		{
+			name:        "異常ケース - 空のセッションデータ",
+			sessionID:   session.SessionID("test-session-id"),
+			sessiondata: nil,
+			expectedErr: ErrInvalidSessionData,
 			setupFunc: func(ss *SessionStorage) {
 				sessionStore = make(map[session.SessionID]SessionData)
 			},
@@ -271,7 +288,7 @@ func Test_認可リクエストパラメータの削除(t *testing.T) {
 			session := NewSessionStorage()
 			tt.setupFunc(session)
 
-			session.Save(tt.sessionID, nil)
+			session.Delete(tt.sessionID)
 			afterLen := len(sessionStore)
 
 			if afterLen != 0 {
@@ -281,59 +298,70 @@ func Test_認可リクエストパラメータの削除(t *testing.T) {
 	}
 }
 
-func TestAuthParamSession_MultipleSession(t *testing.T) {
-	ss := NewSessionStorage()
-	logger := mylogger.NewLogger()
+func Test_セッションの削除(t *testing.T) {
+	logger := mylogger.NewMockLogger()
 
-	// sessionStoreを初期化
-	sessionStore = make(map[session.SessionID]SessionData)
-
-	// 複数のセッションを保存
-	sessions := []struct {
-		sessionID session.SessionID
-		clientID  string
-		state     string
+	tests := []struct {
+		name        string
+		setupFunc   func(*SessionStorage)
+		sessionID   session.SessionID
+		expectExist bool
+		expectErr   error
 	}{
-		{"session1", "client1", "state1"},
-		{"session2", "client2", "state2"},
-		{"session3", "client3", "state3"},
+		{
+			name: "正常系 - 既存セッションの削除",
+			setupFunc: func(ss *SessionStorage) {
+				sessionStore = make(map[session.SessionID]SessionData)
+				param, _ := domain.NewAuthorizationCodeFlowParam(
+					logger,
+					"code",
+					"test-client",
+					"https://example.com/callback",
+					"read write",
+					"test-state",
+				)
+				sessionStore[session.SessionID("delete-session-id")] = *NewSessionData(param, nil)
+			},
+			sessionID:   session.SessionID("delete-session-id"),
+			expectExist: false,
+			expectErr:   nil,
+		},
+		{
+			name: "異常系 - 存在しないセッションの削除",
+			setupFunc: func(ss *SessionStorage) {
+				sessionStore = make(map[session.SessionID]SessionData)
+			},
+			sessionID:   session.SessionID("not-exist-session"),
+			expectExist: false,
+			expectErr:   nil,
+		},
+		{
+			name: "異常系 - 空のセッションIDの削除",
+			setupFunc: func(ss *SessionStorage) {
+				sessionStore = make(map[session.SessionID]SessionData)
+			},
+			sessionID:   session.SessionID(""),
+			expectExist: false,
+			expectErr:   ErrInvalidSessionID,
+		},
 	}
 
-	params := make([]*domain.AuthorizationCodeFlowParam, len(sessions))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ss := NewSessionStorage()
+			tt.setupFunc(ss)
 
-	// 複数のセッションを保存
-	for i, s := range sessions {
-		param, err := domain.NewAuthorizationCodeFlowParam(
-			logger,
-			"code",
-			s.clientID,
-			"https://example.com/callback",
-			"read write",
-			s.state,
-		)
-		if err != nil {
-			t.Fatalf("Failed to create AuthorizationCodeFlowParam: %v", err)
-		}
+			err := ss.Delete(tt.sessionID)
 
-		err = ss.Save(s.sessionID, NewSessionData(param, nil))
-		if err != nil {
-			t.Fatalf("Save() error = %v", err)
-		}
-
-		params[i] = param
-	}
-
-	// 全てのセッションが正しく取得できることを確認
-	for i, s := range sessions {
-		result, err := ss.Get(s.sessionID)
-		if err != nil {
-			t.Errorf("Get() for session %s error = %v", s.sessionID, err)
-		}
-		if result.authParam.ClientID() != params[i].ClientID() {
-			t.Errorf("Get() result.ClientID() = %v, want %v", result.authParam.ClientID(), params[i].ClientID())
-		}
-		if result.authParam.State() != params[i].State() {
-			t.Errorf("Get() result.State() = %v, want %v", result.authParam.State(), params[i].State())
-		}
+			if _, exists := sessionStore[tt.sessionID]; exists != tt.expectExist {
+				t.Errorf("sessionStore existence after Delete = %v, want %v", exists, tt.expectExist)
+			}
+			if err != nil && err != tt.expectErr {
+				t.Errorf("Delete() error = %v, want %v", err, tt.expectErr)
+			}
+			if err == nil && tt.expectErr != nil {
+				t.Errorf("Delete() error = nil, want %v", tt.expectErr)
+			}
+		})
 	}
 }

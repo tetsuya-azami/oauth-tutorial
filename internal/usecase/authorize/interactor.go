@@ -55,7 +55,7 @@ func (c *AuthorizationCodeFlow) Execute(param *domain.AuthorizationCodeFlowParam
 	err = c.sessionStore.Save(sessionID, infrastructure.NewSessionData(param, nil))
 	if err != nil {
 		switch {
-		case errors.Is(err, infrastructure.ErrInvalidParameter):
+		case errors.Is(err, infrastructure.ErrInvalidSessionID) || errors.Is(err, infrastructure.ErrInvalidSessionData):
 			c.logger.Info("invalid session parameter", "error", err)
 			return "", ErrServer
 		default:
