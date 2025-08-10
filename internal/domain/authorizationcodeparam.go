@@ -32,6 +32,11 @@ func NewAuthorizationCodeFlowParam(logger mylogger.Logger, responseType string, 
 		return &AuthorizationCodeFlowParam{}, errors.New("redirect_uri is required")
 	}
 
+	if scope == "" {
+		logger.Info("scope is empty")
+		return &AuthorizationCodeFlowParam{}, errors.New("scope is required")
+	}
+
 	scopes := strings.Split(scope, " ")
 	if !IsValidScopes(scopes) {
 		logger.Info("Invalid scopes", "scopes", scopes, "supportedScopes", SUPPORTED_SCOPES)

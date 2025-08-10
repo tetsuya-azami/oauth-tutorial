@@ -81,6 +81,16 @@ func Test_認可コードフローで使用するparameter構築(t *testing.T) {
 			expectedErr:  "redirect_uri is required",
 		},
 		{
+			name:         "空のscope",
+			responseType: "code",
+			clientID:     "client-1",
+			redirectURI:  "https://example.com/callback",
+			scope:        "",
+			state:        "state123",
+			wantErr:      true,
+			expectedErr:  "scope is required",
+		},
+		{
 			name:         "正常系 scopeが複数",
 			responseType: "code",
 			clientID:     "client-1",
