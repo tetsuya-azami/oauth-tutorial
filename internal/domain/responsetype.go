@@ -1,8 +1,16 @@
 package domain
 
 import (
-	"errors"
+	"fmt"
 )
+
+type UnsupportedResponseTypeError struct {
+	ResponseType string
+}
+
+func (e *UnsupportedResponseTypeError) Error() string {
+	return fmt.Sprintf("unsupported response_type: %s", e.ResponseType)
+}
 
 type ResponseType int
 
@@ -23,7 +31,7 @@ var codeValueMap = map[string]ResponseType{
 func GetResponseType(responseType string) (ResponseType, error) {
 	r, ok := codeValueMap[responseType]
 	if !ok {
-		return notSupported, errors.New("unsupported response_type: " + responseType)
+		return notSupported, &UnsupportedResponseTypeError{ResponseType: responseType}
 	}
 
 	return r, nil

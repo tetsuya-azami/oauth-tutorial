@@ -68,6 +68,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			wantStatusCode: http.StatusBadRequest,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: ErrorResponse{
+				Error:   ErrUnsupportedResponseType,
 				Message: "unsupported response_type: invalid",
 			},
 		},
@@ -84,6 +85,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			wantStatusCode: http.StatusBadRequest,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: ErrorResponse{
+				Error:   ErrInvalidRequest,
 				Message: "client not found",
 			},
 		},
@@ -100,6 +102,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			wantStatusCode: http.StatusBadRequest,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: ErrorResponse{
+				Error:   ErrInvalidRequest,
 				Message: "invalid redirect URI",
 			},
 		},
@@ -132,6 +135,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			wantStatusCode: http.StatusInternalServerError,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: ErrorResponse{
+				Error:   ErrServerError,
 				Message: "server error occurred",
 			},
 		},
@@ -148,6 +152,7 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			wantStatusCode: http.StatusInternalServerError,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: ErrorResponse{
+				Error:   ErrServerError,
 				Message: "unexpected error occurred",
 			},
 		},
