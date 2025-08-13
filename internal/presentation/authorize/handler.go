@@ -35,9 +35,9 @@ func (h *AuthorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		var unsupportedErr *domain.UnsupportedResponseTypeError
 		switch {
 		case errors.As(err, &unsupportedErr):
-			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Error: ErrUnsupportedResponseType, Message: unsupportedErr.Error()})
+			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Error: ErrUnsupportedResponseType, ErrorDescription: unsupportedErr.Error(), State: state})
 		default:
-			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Error: ErrInvalidRequest, Message: err.Error()})
+			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Error: ErrInvalidRequest, ErrorDescription: err.Error(), State: state})
 			return
 		}
 	}
@@ -47,19 +47,19 @@ func (h *AuthorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, uAuthorize.ErrClientNotFound):
 			h.logger.Info("Client not found", "clientID", clientID)
-			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Error: ErrInvalidRequest, Message: err.Error()})
+			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Error: ErrInvalidRequest, ErrorDescription: err.Error(), State: state})
 		case errors.Is(err, uAuthorize.ErrInvalidRedirectURI):
 			h.logger.Info("Invalid redirect URI", "redirectURI", redirectURI)
-			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Error: ErrInvalidRequest, Message: err.Error()})
+			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Error: ErrInvalidRequest, ErrorDescription: err.Error(), State: state})
 		case errors.Is(err, uAuthorize.ErrUnExpected):
 			h.logger.Error("Unexpected error occurred", "error", err)
-			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Error: ErrServerError, Message: err.Error()})
+			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Error: ErrServerError, ErrorDescription: err.Error(), State: state})
 		case errors.Is(err, uAuthorize.ErrServer):
 			h.logger.Error("Server error occurred", "error", err)
-			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Error: ErrServerError, Message: err.Error()})
+			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Error: ErrServerError, ErrorDescription: err.Error(), State: state})
 		default:
 			h.logger.Error("Unexpected error occurred while getting client", "error", err)
-			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{ErrorDescription: err.Error(), State: state})
 		}
 		return
 	}

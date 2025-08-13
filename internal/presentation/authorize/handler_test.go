@@ -68,8 +68,9 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			wantStatusCode: http.StatusBadRequest,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: ErrorResponse{
-				Error:   ErrUnsupportedResponseType,
-				Message: "unsupported response_type: invalid",
+				Error:            ErrUnsupportedResponseType,
+				ErrorDescription: "unsupported response_type: invalid",
+				State:            "test-state",
 			},
 		},
 		{
@@ -85,8 +86,9 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			wantStatusCode: http.StatusBadRequest,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: ErrorResponse{
-				Error:   ErrInvalidRequest,
-				Message: "client not found",
+				Error:            ErrInvalidRequest,
+				ErrorDescription: "client not found",
+				State:            "test-state",
 			},
 		},
 		{
@@ -102,8 +104,9 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			wantStatusCode: http.StatusBadRequest,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: ErrorResponse{
-				Error:   ErrInvalidRequest,
-				Message: "invalid redirect URI",
+				Error:            ErrInvalidRequest,
+				ErrorDescription: "invalid redirect URI",
+				State:            "test-state",
 			},
 		},
 		{
@@ -119,7 +122,8 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			wantStatusCode: http.StatusInternalServerError,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: ErrorResponse{
-				Message: "database connection failed",
+				ErrorDescription: "database connection failed",
+				State:            "test-state",
 			},
 		},
 		{
@@ -135,8 +139,9 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			wantStatusCode: http.StatusInternalServerError,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: ErrorResponse{
-				Error:   ErrServerError,
-				Message: "server error occurred",
+				Error:            ErrServerError,
+				ErrorDescription: "server error occurred",
+				State:            "test-state",
 			},
 		},
 		{
@@ -152,8 +157,9 @@ func TestAuthorizeHandler_ServeHTTP(t *testing.T) {
 			wantStatusCode: http.StatusInternalServerError,
 			wantHeader:     map[string]string{"Content-Type": "application/json"},
 			wantResponse: ErrorResponse{
-				Error:   ErrServerError,
-				Message: "unexpected error occurred",
+				Error:            ErrServerError,
+				ErrorDescription: "unexpected error occurred",
+				State:            "test-state",
 			},
 		},
 	}
