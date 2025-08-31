@@ -40,9 +40,9 @@ func (s *Server) Start() {
 	pac := uDecision.NewPublishAuthorizationCodeUseCase(s.logger, rg, ss, ur, ar)
 
 	// Set up HTTP handlers
-	http.Handle("/authorize", pAuthorize.NewAuthorizeHandler(s.logger, acf))
-	http.Handle("/decision", pDecision.NewDecisionHandler(s.logger, pac))
-	http.Handle("/token", pToken.NewTokenHandler(s.logger))
+	http.Handle("GET /authorize", pAuthorize.NewAuthorizeHandler(s.logger, acf))
+	http.Handle("POST /decision", pDecision.NewDecisionHandler(s.logger, pac))
+	http.Handle("POST /token", pToken.NewTokenHandler(s.logger))
 
 	// Start the HTTP server
 	s.logger.Info("Listening on :8080")

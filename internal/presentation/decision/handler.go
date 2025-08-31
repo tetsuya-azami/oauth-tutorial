@@ -28,22 +28,22 @@ func (h *DecisionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	param, err := h.createParam(r.Form, w, r)
+	input, err := h.convertParamToInput(r.Form, w, r)
 	if err != nil {
 		presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	result, err := h.publishAuthorizationCode.Execute(param)
-	switch {
-	case errors.Is(err, decision.ErrSessionNotFound):
+	result, err := h.publishAuthorizationCode.Execute(input)
+	switch err {
+	case decision.ErrSessionNotFound:
 		presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		return
-	case errors.Is(err, decision.ErrUnexpectedError):
-		presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
-		return
-	case errors.Is(err, decision.ErrAuthorizationDenied):
+	case decision.ErrAuthorizationDenied:
 		presentation.WriteJSONResponse(w, http.StatusForbidden, ErrorResponse{Message: err.Error()})
+		return
+	case decision.ErrUnexpectedError:
+		presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -51,7 +51,7 @@ func (h *DecisionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, redirectUri, http.StatusSeeOther)
 }
 
-func (h *DecisionHandler) createParam(formValues url.Values, w http.ResponseWriter, r *http.Request) (*decision.PublishAuthorizationCodeInput, error) {
+func (h *DecisionHandler) convertParamToInput(formValues url.Values, w http.ResponseWriter, r *http.Request) (*decision.PublishAuthorizationCodeInput, error) {
 	approved, err := strconv.ParseBool(formValues.Get("approved"))
 	if err != nil {
 		h.logger.Info("Invalid 'approved' parameter: %v", err)

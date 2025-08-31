@@ -85,9 +85,9 @@ func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCo
 
 	uc.authCodeRepository.Save(authorizationCode)
 
-	return PublishAuthorizationCodeOutput{
-		baseRedirectUri:   session.AuthParam().RedirectURI(),
-		authorizationCode: authorizationCode.Value(),
-		state:             session.AuthParam().State(),
-	}, nil
+	return NewPublishAuthorizationCodeOutput(
+		session.AuthParam().RedirectURI(),
+		authorizationCode.Value(),
+		session.AuthParam().State(),
+	), nil
 }
