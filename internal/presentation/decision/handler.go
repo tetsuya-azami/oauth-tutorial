@@ -35,16 +35,18 @@ func (h *DecisionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := h.publishAuthorizationCode.Execute(input)
-	switch err {
-	case decision.ErrSessionNotFound:
-		presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
-		return
-	case decision.ErrAuthorizationDenied:
-		presentation.WriteJSONResponse(w, http.StatusForbidden, ErrorResponse{Message: err.Error()})
-		return
-	case decision.ErrUnexpectedError:
-		presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
-		return
+	if err != nil {
+		switch {
+		case errors.Is(err, decision.ErrSessionNotFound):
+			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+			return
+		case errors.Is(err, decision.ErrAuthorizationDenied):
+			presentation.WriteJSONResponse(w, http.StatusForbidden, ErrorResponse{Message: err.Error()})
+			return
+		case errors.Is(err, decision.ErrUnexpectedError):
+			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+			return
+		}
 	}
 
 	redirectUri := result.BaseRedirectUri() + "?code=" + result.AuthorizationCode() + "&state=" + result.State()

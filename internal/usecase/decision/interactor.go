@@ -33,7 +33,7 @@ func NewPublishAuthorizationCodeUseCase(logger mylogger.Logger, randomCodeGenera
 	}
 }
 
-func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCodeInput) (PublishAuthorizationCodeOutput, *ErrPublishAuthorizationCode) {
+func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCodeInput) (PublishAuthorizationCodeOutput, error) {
 	session, err := uc.sessionStore.Get(param.sessionId)
 	switch {
 	case errors.Is(err, infrastructure.ErrSessionNotFound):
