@@ -36,16 +36,26 @@ func (h *DecisionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.publishAuthorizationCode.Execute(input)
 	if err != nil {
-		switch {
-		case errors.Is(err, decision.ErrSessionNotFound):
-			presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
-			return
-		case errors.Is(err, decision.ErrAuthorizationDenied):
-			presentation.WriteJSONResponse(w, http.StatusForbidden, ErrorResponse{Message: err.Error()})
-			return
-		case errors.Is(err, decision.ErrUnexpectedError):
-			presentation.WriteJSONResponse(w, http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
-			return
+		var errPac *decision.ErrPublishAuthorizationCode
+		if errors.As(err, &errPac) {
+			switch {
+			case errors.Is(errPac, decision.ErrSessionNotFound):
+				// sessionが見つからない場合、redirectURIを取得できないため、JSONでエラーを返す
+				presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+				return
+			case errors.Is(errPac, decision.ErrUnexpectedSessionGetError):
+				// session取得時に予期しないエラーが起きた場合、redirectURIを取得できないため、JSONでエラーを返す
+				presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+				return
+			case errors.Is(errPac, decision.ErrAuthorizationDenied):
+				redirectUri := errPac.BaseRedirectUri() + "?error=access_denied&error_description=" + errPac.Error() + "&state=" + errPac.State()
+				http.Redirect(w, r, redirectUri, http.StatusSeeOther)
+				return
+			case errors.Is(errPac, decision.ErrInvalidLoginCredentials):
+				// クレデンシャルが異なる場合、リダイレクトせずにフロントでの再入力を促すためJSONでエラーを返す
+				presentation.WriteJSONResponse(w, http.StatusUnauthorized, ErrorResponse{Message: errPac.Error()})
+				return
+			}
 		}
 	}
 

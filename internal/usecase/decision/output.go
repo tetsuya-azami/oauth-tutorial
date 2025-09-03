@@ -29,12 +29,14 @@ func (r *PublishAuthorizationCodeOutput) State() string {
 type ErrPublishAuthorizationCode struct {
 	err             error
 	baseRedirectUri string
+	state           string
 }
 
-func NewErrPublishAuthorizationCode(err error, baseRedirectUri string) *ErrPublishAuthorizationCode {
+func NewErrPublishAuthorizationCode(err error, baseRedirectUri string, state string) *ErrPublishAuthorizationCode {
 	return &ErrPublishAuthorizationCode{
 		err:             err,
 		baseRedirectUri: baseRedirectUri,
+		state:           state,
 	}
 }
 
@@ -44,4 +46,12 @@ func (e *ErrPublishAuthorizationCode) Error() string {
 
 func (e *ErrPublishAuthorizationCode) Unwrap() error {
 	return e.err
+}
+
+func (e *ErrPublishAuthorizationCode) BaseRedirectUri() string {
+	return e.baseRedirectUri
+}
+
+func (e *ErrPublishAuthorizationCode) State() string {
+	return e.state
 }

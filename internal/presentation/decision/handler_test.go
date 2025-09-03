@@ -11,6 +11,10 @@ import (
 	"testing"
 )
 
+const (
+	TestBaseRedirectURI = "https://example.com/callback"
+)
+
 // モックのPublishAuthorizationCodeUseCase
 type mockPublishAuthorizationCodeUseCase struct {
 	executeFunc func(*decision.PublishAuthorizationCodeInput) (decision.PublishAuthorizationCodeOutput, error)
@@ -76,7 +80,7 @@ func TestDecisionHandler_ServeHTTP(t *testing.T) {
 			mockUseCase: &mockPublishAuthorizationCodeUseCase{
 				executeFunc: func(input *decision.PublishAuthorizationCodeInput) (decision.PublishAuthorizationCodeOutput, error) {
 					return decision.NewPublishAuthorizationCodeOutput(
-						"https://example.com/callback",
+						TestBaseRedirectURI,
 						"test-auth-code",
 						"test-state",
 					), nil
@@ -98,7 +102,7 @@ func TestDecisionHandler_ServeHTTP(t *testing.T) {
 			},
 			mockUseCase: &mockPublishAuthorizationCodeUseCase{
 				executeFunc: func(input *decision.PublishAuthorizationCodeInput) (decision.PublishAuthorizationCodeOutput, error) {
-					return decision.PublishAuthorizationCodeOutput{}, decision.NewErrPublishAuthorizationCode(decision.ErrSessionNotFound, "")
+					return decision.PublishAuthorizationCodeOutput{}, decision.NewErrPublishAuthorizationCode(decision.ErrSessionNotFound, "", "")
 				},
 			},
 			expectedStatus: http.StatusBadRequest,
@@ -117,17 +121,18 @@ func TestDecisionHandler_ServeHTTP(t *testing.T) {
 			},
 			mockUseCase: &mockPublishAuthorizationCodeUseCase{
 				executeFunc: func(input *decision.PublishAuthorizationCodeInput) (decision.PublishAuthorizationCodeOutput, error) {
-					return decision.PublishAuthorizationCodeOutput{}, decision.NewErrPublishAuthorizationCode(decision.ErrAuthorizationDenied, "")
+					return decision.PublishAuthorizationCodeOutput{}, decision.NewErrPublishAuthorizationCode(decision.ErrAuthorizationDenied, TestBaseRedirectURI, "test-state")
 				},
 			},
-			expectedStatus: http.StatusForbidden,
-			expectedBody:   `{"message":"authorization denied by user"}`,
+			expectedStatus:      http.StatusSeeOther,
+			expectedBody:        "",
+			expectedRedirectURL: TestBaseRedirectURI + "?error=access_denied&error_description=" + decision.ErrAuthorizationDenied.Error() + "&state=test-state",
 		},
 		{
-			name: "異常ケース - 予期しないエラー",
+			name: "異常ケース - ログイン失敗",
 			formData: url.Values{
 				"approved": {"true"},
-				"login_id": {"testuser"},
+				"login_id": {"unknown"},
 				"password": {"testpass"},
 			},
 			sessionCookie: &http.Cookie{
@@ -136,11 +141,12 @@ func TestDecisionHandler_ServeHTTP(t *testing.T) {
 			},
 			mockUseCase: &mockPublishAuthorizationCodeUseCase{
 				executeFunc: func(input *decision.PublishAuthorizationCodeInput) (decision.PublishAuthorizationCodeOutput, error) {
-					return decision.PublishAuthorizationCodeOutput{}, decision.NewErrPublishAuthorizationCode(decision.ErrUnexpectedError, "")
+					return decision.PublishAuthorizationCodeOutput{}, decision.NewErrPublishAuthorizationCode(decision.ErrInvalidLoginCredentials, "", "")
 				},
 			},
-			expectedStatus: http.StatusInternalServerError,
-			expectedBody:   `{"message":"unexpected error occurred"}`,
+			expectedStatus:      http.StatusUnauthorized,
+			expectedBody:        `{"message":"invalid login credentials"}`,
+			expectedRedirectURL: "",
 		},
 	}
 
@@ -167,7 +173,7 @@ func TestDecisionHandler_ServeHTTP(t *testing.T) {
 				t.Errorf("expected status code %d, got %d", tt.expectedStatus, recorder.Code)
 			}
 
-			if recorder.Code != http.StatusSeeOther {
+			if recorder.Code == http.StatusSeeOther {
 				location := recorder.Header().Get("Location")
 				if location != tt.expectedRedirectURL {
 					t.Errorf("expected redirect to %s, got %s", tt.expectedRedirectURL, location)
