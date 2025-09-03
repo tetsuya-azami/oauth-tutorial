@@ -27,16 +27,16 @@ func NewServer() *Server {
 func (s *Server) Start() {
 	s.logger.Info("start server")
 
-	// Initialize repositories and use cases
+	// 認可リクエストのためのコンポーネントを初期化
 	cr := infrastructure.NewClientRepository()
 	sig := session.NewSessionIDGenerator()
 	ss := infrastructure.NewSessionStorage()
 	acf := uAuthorize.NewAuthorizationCodeFlow(s.logger, cr, sig, ss)
 
+	// 認可コード発行のためのコンポーネントを初期化
 	rg := &mycrypto.RandomGenerator{}
 	ur := infrastructure.NewUserRepository()
 	ar := infrastructure.NewAuthCodeRepository()
-	// 認可コード発行ユースケース
 	pac := uDecision.NewPublishAuthorizationCodeUseCase(s.logger, rg, ss, ur, ar)
 
 	// Set up HTTP handlers
