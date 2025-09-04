@@ -23,12 +23,12 @@ func NewDecisionHandler(logger mylogger.Logger, publishAuthorizationCode IPublis
 func (h *DecisionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		h.logger.Info("Failed to parse form: %v", err)
+		h.logger.Info("Failed to parse form", "err", err)
 		presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: "パラメータの形式を確認してください"})
 		return
 	}
 
-	input, err := h.convertParamToInput(r.Form, w, r)
+	input, err := h.convertParamToInput(r.Form, r)
 	if err != nil {
 		presentation.WriteJSONResponse(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		return
@@ -63,23 +63,23 @@ func (h *DecisionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, redirectUri, http.StatusSeeOther)
 }
 
-func (h *DecisionHandler) convertParamToInput(formValues url.Values, w http.ResponseWriter, r *http.Request) (*decision.PublishAuthorizationCodeInput, error) {
+func (h *DecisionHandler) convertParamToInput(formValues url.Values, r *http.Request) (*decision.PublishAuthorizationCodeInput, error) {
 	approved, err := strconv.ParseBool(formValues.Get("approved"))
 	if err != nil {
-		h.logger.Info("Invalid 'approved' parameter: %v", err)
+		h.logger.Info("Invalid 'approved' parameter", "err", err)
 		return nil, errors.New("無効なリクエストです。もう一度初めからやり直してください")
 	}
 	sessionID, err := r.Cookie(session.SessionIDCookieName)
 	if err != nil {
-		h.logger.Info("SessionID cookie not found: %v", err)
+		h.logger.Info("SessionID cookie not found", "err", err)
 		return nil, errors.New("セッションが見つかりません。もう一度初めからやり直してください")
 	}
 
-	param, err := decision.NewPublishAuthorizationCodeInput(session.SessionID(sessionID.Value), formValues.Get("login_id"), formValues.Get("password"), approved)
+	input, err := decision.NewPublishAuthorizationCodeInput(session.SessionID(sessionID.Value), formValues.Get("login_id"), formValues.Get("password"), approved)
 	if err != nil {
-		h.logger.Info("Failed to create PublishAuthorizationCodeParam: %v", err)
+		h.logger.Info("Failed to create param", "err", err)
 		return nil, errors.New("無効なリクエストです。もう一度初めからやり直してください")
 	}
 
-	return param, nil
+	return input, nil
 }

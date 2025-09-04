@@ -29,7 +29,7 @@ func NewPublishAuthorizationCodeInput(sessionId session.SessionID, loginID, pass
 		return nil, ErrEmptyPassword
 	}
 
-	return &PublishAuthorizationCodeInput{sessionId: sessionId, approved: approved}, nil
+	return &PublishAuthorizationCodeInput{sessionId: sessionId, loginID: loginID, password: password, approved: approved}, nil
 }
 
 func (p *PublishAuthorizationCodeInput) Approved() bool {

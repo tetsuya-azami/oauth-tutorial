@@ -33,8 +33,8 @@ func NewPublishAuthorizationCodeUseCase(logger mylogger.Logger, randomCodeGenera
 	}
 }
 
-func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCodeInput) (PublishAuthorizationCodeOutput, error) {
-	session, err := uc.sessionStore.Get(param.sessionId)
+func (uc *PublishAuthorizationCodeUseCase) Execute(input *PublishAuthorizationCodeInput) (PublishAuthorizationCodeOutput, error) {
+	session, err := uc.sessionStore.Get(input.sessionId)
 	switch {
 	case errors.Is(err, infrastructure.ErrSessionNotFound):
 		uc.logger.Info("Session not found", err)
@@ -60,7 +60,7 @@ func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCo
 		}
 	}
 
-	if !param.approved {
+	if !input.approved {
 		uc.logger.Info("Authorization denied by user")
 		return PublishAuthorizationCodeOutput{}, &ErrPublishAuthorizationCode{
 			err:             ErrAuthorizationDenied,
@@ -69,9 +69,9 @@ func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCo
 		}
 	}
 
-	user, err := uc.userRepository.SelectByLoginIDAndPassword(param.loginID, param.password)
+	user, err := uc.userRepository.SelectByLoginIDAndPassword(input.loginID, input.password)
 	if err != nil {
-		uc.logger.Info("Failed to select user by loginID and password", err)
+		uc.logger.Info("Failed to select user by loginID and password", "err", err)
 		return PublishAuthorizationCodeOutput{}, &ErrPublishAuthorizationCode{
 			err:             ErrInvalidLoginCredentials,
 			baseRedirectUri: "",
@@ -79,7 +79,7 @@ func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCo
 		}
 	}
 	if user == nil {
-		uc.logger.Info("Failed to select user by loginID and password", err)
+		uc.logger.Info("Failed to select user by loginID and password", "err", err)
 		return PublishAuthorizationCodeOutput{}, &ErrPublishAuthorizationCode{
 			err:             ErrInvalidLoginCredentials,
 			baseRedirectUri: "",
@@ -87,9 +87,12 @@ func (uc *PublishAuthorizationCodeUseCase) Execute(param *PublishAuthorizationCo
 		}
 	}
 
+	// 認可コードの発行と登録
 	authorizationCode := domain.NewAuthorizationCode(uc.randomCodeGenerator, user.UserID(), session.AuthParam().ClientID(), session.AuthParam().Scopes(), session.AuthParam().RedirectURI(), time.Now())
-
 	uc.authCodeRepository.Save(authorizationCode)
+
+	// セッションから認可リクエストのパラメーターを削除
+	uc.sessionStore.Delete(input.sessionId)
 
 	return NewPublishAuthorizationCodeOutput(
 		session.AuthParam().RedirectURI(),

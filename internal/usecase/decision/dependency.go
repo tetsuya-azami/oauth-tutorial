@@ -12,6 +12,7 @@ type IRandomCodeGenerator interface {
 
 type ISessionStorage interface {
 	Get(sessionID session.SessionID) (*inf_dto.SessionData, error)
+	Delete(sessionID session.SessionID) error
 }
 
 type IUserRepository interface {

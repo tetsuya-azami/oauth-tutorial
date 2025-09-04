@@ -247,10 +247,9 @@ func Test_リクエストパラメーターからInputへの変換(t *testing.T)
 			if tt.sessionCookie != nil {
 				req.AddCookie(tt.sessionCookie)
 			}
-			w := httptest.NewRecorder()
 
 			// when
-			param, err := handler.convertParamToInput(tt.formValues, w, req)
+			param, err := handler.convertParamToInput(tt.formValues, req)
 
 			// then
 			if tt.expectError {
