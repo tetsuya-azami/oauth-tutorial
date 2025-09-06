@@ -24,7 +24,7 @@ flowchart TD
     CHECK_CLIENT_TYPE -->
     |コンフィデンシャルクライアントの場合| CLIENT_AUTHENTICATION
 
-    %% クライアント認証
+    %% クライアント認証(Basicのみサポート)
     CLIENT_AUTHENTICATION -->
     |認証OK| GET_AUTHORIZATION_CODE_INFO
 
