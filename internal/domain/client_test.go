@@ -8,14 +8,14 @@ import (
 func Test_client再構築(t *testing.T) {
 	tests := []struct {
 		name         string
-		clientID     string
+		clientID     ClientID
 		clientName   string
 		secret       string
 		redirectURIs []string
 	}{
 		{
 			name:         "正常系",
-			clientID:     "client-1",
+			clientID:     ClientID("client-1"),
 			clientName:   "Test Client",
 			secret:       "secret123",
 			redirectURIs: []string{"https://example.com/callback"},

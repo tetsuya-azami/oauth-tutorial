@@ -1,30 +1,31 @@
 package infrastructure
 
 import (
+	"oauth-tutorial/internal/domain"
 	"testing"
 )
 
 func Test_クライアントIDでのクライアント取得(t *testing.T) {
 	tests := []struct {
 		name         string
-		clientID     string
+		clientID     domain.ClientID
 		expectError  error
 		expectedName string
 	}{
 		{
 			name:         "existing client",
-			clientID:     "iouobrnea",
+			clientID:     domain.ClientID("iouobrnea"),
 			expectError:  nil,
 			expectedName: "client-1",
 		},
 		{
 			name:        "non-existing client",
-			clientID:    "nonexistent",
+			clientID:    domain.ClientID("nonexistent"),
 			expectError: ErrClientNotFound,
 		},
 		{
 			name:        "empty client ID",
-			clientID:    "",
+			clientID:    domain.ClientID(""),
 			expectError: ErrClientNotFound,
 		},
 	}

@@ -6,22 +6,34 @@ import (
 )
 
 type ClientRepository struct {
-	clients map[string]*domain.Client
+	clients map[domain.ClientID]*domain.Client
 }
 
 var ErrClientNotFound = errors.New("client not found")
 
 func NewClientRepository() *ClientRepository {
-	clients := map[string]*domain.Client{
-		"iouobrnea": domain.ReconstructClient("iouobrnea", "client-1", "password", []string{"https://client.example.com/callback"}),
+	clients := map[domain.ClientID]*domain.Client{
+		"iouobrnea": domain.ReconstructClient(domain.ClientID("iouobrnea"), "client-1", "password", []string{"https://client.example.com/callback"}),
 	}
 	return &ClientRepository{clients: clients}
 }
 
-func (r *ClientRepository) SelectByClientID(clientID string) (*domain.Client, error) {
+func (r *ClientRepository) SelectByClientID(clientID domain.ClientID) (*domain.Client, error) {
 	client, ok := r.clients[clientID]
 	if !ok {
 		return nil, ErrClientNotFound
 	}
+	return client, nil
+}
+
+func (r *ClientRepository) SelectByClientIDAndClientSecret(clientID domain.ClientID, clientSecret string) (*domain.Client, error) {
+	client, ok := r.clients[clientID]
+	if !ok {
+		return nil, ErrClientNotFound
+	}
+	if client.Secret() != clientSecret {
+		return nil, ErrClientNotFound
+	}
+
 	return client, nil
 }

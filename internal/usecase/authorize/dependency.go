@@ -7,7 +7,7 @@ import (
 )
 
 type IClientRepository interface {
-	SelectByClientID(clientID string) (*domain.Client, error)
+	SelectByClientID(clientID domain.ClientID) (*domain.Client, error)
 }
 
 type ISessionStorage interface {
