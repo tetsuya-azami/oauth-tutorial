@@ -25,7 +25,7 @@ func NewTokenRespository() *TokenRepository {
 func (r *TokenRepository) Save(token *domain.AccessToken) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.store[token.AccessToken()] = token
+	r.store[token.Value()] = token
 	return nil
 }
 

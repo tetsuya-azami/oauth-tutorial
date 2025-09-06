@@ -6,11 +6,11 @@ import (
 )
 
 type AccessToken struct {
-	accessToken string
-	clientID    string
-	userID      string
-	scopes      []string
-	expiresAt   int64
+	value     string
+	clientID  string
+	userID    string
+	scopes    []string
+	expiresAt int64
 }
 
 const (
@@ -22,16 +22,16 @@ func NewAccessToken(clientID, userID string, scopes []string, now time.Time) *Ac
 	expiresAt := now.Local().Add(ACCESS_TOKEN_DURATION).Unix()
 	at := g.GenerateURLSafeRandomString(32)
 	return &AccessToken{
-		accessToken: at,
-		clientID:    clientID,
-		userID:      userID,
-		scopes:      scopes,
-		expiresAt:   expiresAt,
+		value:     at,
+		clientID:  clientID,
+		userID:    userID,
+		scopes:    scopes,
+		expiresAt: expiresAt,
 	}
 }
 
-func (t *AccessToken) AccessToken() string { return t.accessToken }
-func (t *AccessToken) ClientID() string    { return t.clientID }
-func (t *AccessToken) UserID() string      { return t.userID }
-func (t *AccessToken) Scopes() []string    { return t.scopes }
-func (t *AccessToken) ExpiresAt() int64    { return t.expiresAt }
+func (t *AccessToken) Value() string    { return t.value }
+func (t *AccessToken) ClientID() string { return t.clientID }
+func (t *AccessToken) UserID() string   { return t.userID }
+func (t *AccessToken) Scopes() []string { return t.scopes }
+func (t *AccessToken) ExpiresAt() int64 { return t.expiresAt }
