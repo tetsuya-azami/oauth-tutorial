@@ -22,11 +22,10 @@ func NewTokenRespository() *TokenRepository {
 	}
 }
 
-func (r *TokenRepository) Save(token *domain.AccessToken) error {
+func (r *TokenRepository) Save(token *domain.AccessToken) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.store[token.Value()] = token
-	return nil
 }
 
 func (r *TokenRepository) FindByAccessToken(token string) (*domain.AccessToken, error) {

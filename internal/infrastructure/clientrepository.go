@@ -25,15 +25,3 @@ func (r *ClientRepository) SelectByClientID(clientID domain.ClientID) (*domain.C
 	}
 	return client, nil
 }
-
-func (r *ClientRepository) SelectByClientIDAndClientSecret(clientID domain.ClientID, clientSecret string) (*domain.Client, error) {
-	client, ok := r.clients[clientID]
-	if !ok {
-		return nil, ErrClientNotFound
-	}
-	if client.Secret() != clientSecret {
-		return nil, ErrClientNotFound
-	}
-
-	return client, nil
-}

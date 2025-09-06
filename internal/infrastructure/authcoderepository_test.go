@@ -168,16 +168,6 @@ func TestAuthCodeRepository_Delete(t *testing.T) {
 	}
 }
 
-func TestAuthCodeRepository_DeleteNonExisting(t *testing.T) {
-	repo := NewAuthCodeRepository()
-
-	// 存在しないコードを削除しようとしてもエラーが発生しないことを確認
-	err := repo.Delete("non-existing-code")
-	if err != nil {
-		t.Errorf("Delete() error = %v, want nil", err)
-	}
-}
-
 func TestAuthCodeRepository_ConcurrentAccess(t *testing.T) {
 	repo := NewAuthCodeRepository()
 

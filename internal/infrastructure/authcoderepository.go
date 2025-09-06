@@ -37,9 +37,8 @@ func (r *AuthCodeRepository) FindByCode(code string) (*domain.AuthorizationCode,
 	return v, nil
 }
 
-func (r *AuthCodeRepository) Delete(code string) error {
+func (r *AuthCodeRepository) Delete(code string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	delete(r.authCodeStore, code)
-	return nil
 }
