@@ -64,6 +64,7 @@ func Test_認可コードフローユースケース(t *testing.T) {
 	validClient := domain.ReconstructClient(
 		"test-client",
 		"Test Client",
+		domain.ConfidentialClient,
 		"test-secret",
 		[]string{"https://example.com/callback", "https://app.example.com/auth"},
 	)

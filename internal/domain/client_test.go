@@ -10,6 +10,7 @@ func Test_client再構築(t *testing.T) {
 		name         string
 		clientID     ClientID
 		clientName   string
+		clientType   ClientType
 		secret       string
 		redirectURIs []string
 	}{
@@ -24,13 +25,16 @@ func Test_client再構築(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := ReconstructClient(tt.clientID, tt.clientName, tt.secret, tt.redirectURIs)
+			client := ReconstructClient(tt.clientID, tt.clientName, tt.clientType, tt.secret, tt.redirectURIs)
 
 			if client.ClientID() != tt.clientID {
 				t.Errorf("ClientID() = %v, want %v", client.ClientID(), tt.clientID)
 			}
 			if client.ClientName() != tt.clientName {
 				t.Errorf("ClientName() = %v, want %v", client.ClientName(), tt.clientName)
+			}
+			if client.ClientType() != tt.clientType {
+				t.Errorf("ClientType() = %v, want %v", client.ClientType(), tt.clientType)
 			}
 			if client.Secret() != tt.secret {
 				t.Errorf("Secret() = %v, want %v", client.Secret(), tt.secret)
@@ -42,7 +46,7 @@ func Test_client再構築(t *testing.T) {
 	}
 }
 
-func Test_clinetがredirectURIを持っているか検査(t *testing.T) {
+func Test_clientがredirectURIを持っているか検査(t *testing.T) {
 	okUri := "https://example.com/callback"
 	tests := []struct {
 		name     string
@@ -73,7 +77,7 @@ func Test_clinetがredirectURIを持っているか検査(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := ReconstructClient("test-client", "Test Client", "secret", []string{okUri, "https://app.example.com/auth"})
+			client := ReconstructClient("test-client", "Test Client", ConfidentialClient, "secret", []string{okUri, "https://app.example.com/auth"})
 
 			result := client.ContainsRedirectURI(tt.testURI)
 			if result != tt.expected {

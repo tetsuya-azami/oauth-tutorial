@@ -13,7 +13,7 @@ var ErrClientNotFound = errors.New("client not found")
 
 func NewClientRepository() *ClientRepository {
 	clients := map[domain.ClientID]*domain.Client{
-		"iouobrnea": domain.ReconstructClient(domain.ClientID("iouobrnea"), "client-1", "password", []string{"https://client.example.com/callback"}),
+		"iouobrnea": domain.ReconstructClient(domain.ClientID("iouobrnea"), "client-1", domain.ConfidentialClient, "password", []string{"https://client.example.com/callback"}),
 	}
 	return &ClientRepository{clients: clients}
 }
