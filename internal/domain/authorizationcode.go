@@ -63,3 +63,7 @@ func (a *AuthorizationCode) ClientID() string    { return a.clientID }
 func (a *AuthorizationCode) RedirectURI() string { return a.redirectURI }
 func (a *AuthorizationCode) ExpiresAt() int64    { return a.expiresAt }
 func (a *AuthorizationCode) Scopes() []string    { return a.scopes }
+
+func (a *AuthorizationCode) IsExpired(now time.Time) bool {
+	return now.Local().Unix() > a.expiresAt
+}
