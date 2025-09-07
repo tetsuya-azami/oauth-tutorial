@@ -3,14 +3,14 @@ package domain
 type GrantType int
 
 const (
-	grantTypeNotSupported GrantType = iota
-	grantTypeAuthorizationCode
-	grantTypeRefreshToken
+	GrantTypeNotSupported GrantType = iota
+	GrantTypeAuthorizationCode
+	GrantTypeRefreshToken
 )
 
 var grantTypeValueMap = map[string]GrantType{
-	"authorization_code": grantTypeAuthorizationCode,
-	"refresh_token":      grantTypeRefreshToken,
+	"authorization_code": GrantTypeAuthorizationCode,
+	"refresh_token":      GrantTypeRefreshToken,
 }
 
 type UnsupportedGrantTypeError struct {
@@ -21,10 +21,10 @@ func (e *UnsupportedGrantTypeError) Error() string {
 	return "unsupported grant_type: " + e.GrantType
 }
 
-func GetGrantType(grantType string) (GrantType, error) {
+func ResolveGrantType(grantType string) (GrantType, error) {
 	g, ok := grantTypeValueMap[grantType]
 	if !ok {
-		return grantTypeNotSupported, &UnsupportedGrantTypeError{GrantType: grantType}
+		return GrantTypeNotSupported, &UnsupportedGrantTypeError{GrantType: grantType}
 	}
 	return g, nil
 }

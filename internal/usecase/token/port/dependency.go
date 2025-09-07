@@ -1,4 +1,4 @@
-package token
+package tokenport
 
 import "oauth-tutorial/internal/domain"
 
@@ -8,6 +8,7 @@ type IClientRepository interface {
 
 type ITokenRepository interface {
 	Save(token *domain.AccessToken)
+	SaveRefreshToken(token *domain.RefreshToken, accessToken *domain.AccessToken)
 	FindByAccessToken(token string) (*domain.AccessToken, error)
 }
 
